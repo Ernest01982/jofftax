@@ -1,0 +1,5 @@
+import {identity,database,selectedYear,privateResponse,failure} from '../../../lib/api';
+import {loadPreparation} from '../../../lib/repository';
+import {preparationPack,packText} from '../../../lib/export';
+export const dynamic='force-dynamic';
+export async function GET(req:Request){const owner=await identity();if(!owner)return privateResponse({error:'Sign in is required.'},401);const year=selectedYear(req);if(!year)return privateResponse({error:'Choose a supported year.'},400);try{const p=await loadPreparation(database(),owner,year);if(!p)return privateResponse({error:'Save this year’s preparation before exporting.'},404);const text=new URL(req.url).searchParams.get('format')==='text';return new Response(text?packText(p):JSON.stringify(preparationPack(p),null,2),{headers:{'Content-Type':text?'text/plain; charset=utf-8':'application/json; charset=utf-8','Content-Disposition':`attachment; filename="joff-tax-${year}-preparation.${text?'txt':'json'}"`,'Cache-Control':'private, no-store, max-age=0','Vary':'Cookie, oai-authenticated-user-id','X-Content-Type-Options':'nosniff'}});}catch(e){return failure(e);}}
