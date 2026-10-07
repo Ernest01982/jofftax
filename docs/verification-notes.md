@@ -1,6 +1,26 @@
 # Private validation verification
 
-Status: local implementation checks passed; live-session and browser acceptance remain pending. All fixtures are fictional. No taxpayer data, external credentials, browser sessions or live SARS services were used.
+Current status: fresh local implementation and browser checks passed on 7 October 2026; genuine hosted visitor-session acceptance remains pending. All fixtures are fictional. No taxpayer data or live SARS services were used. Historical evidence below is retained separately.
+
+## Current replacement-chat verification — 7 October 2026
+
+Windows / Node 22.20 evidence, reported by the coordinating agent:
+
+| Check | Current result | Evidence / qualification |
+| --- | --- | --- |
+| Sites dependency installation | Passed | Actual `install-dependencies` workflow via the portable Node dispatcher; pnpm 11.25, frozen lockfile, 639 packages. Network timeouts were recovered through retries/cached packages. |
+| Tests and TypeScript | Passed | 83 tests, 0 failures; TypeScript noEmit passed. Includes four focused installation-runtime tests; that runtime-only patch received Astra review. |
+| Exact Sites production build | Passed | Current checkout built through the Sites production entrypoint. Packaging/new-version deployment remains pending. |
+| Local D1 migrations | Passed locally | Both migration commands passed. This is not hosted persistence evidence. |
+| Calculator/navigation browser checks | Passed locally | Playwright using installed Chrome at `127.0.0.1:5173`: 45 unique checks, including all 36 fictional example flows, search/favourites, malformed inputs/result focus, actual JSON/text downloads and clipboard, print popup/PDF, stale-result invalidation on edits/year, three-scenario cap, reload clearing amounts and favourite-only storage, and calendar exclusion of the unconfirmed date. |
+| Mobile browser checks | Passed locally | 390px landing/hub/result/sample/pricing checks found no horizontal overflow or page errors. These bounded checks do not claim exhaustive accessibility acceptance. |
+| Workspace/API/D1 browser checks | Passed locally | Nine checks using mock identity: anonymous denial/mock sign-in, both-year UI save/reload, failed-save retention, stale revision 409, saved exports versus unsaved work, all-account export, cancellation and typed-confirmation deletion. Report: `work/browser-evidence/workspace/report.json` in the replacement-chat workspace. |
+| Hosted v2 read-only HTTP checks | Passed within stated scope | Nine checks through platform service access, **not visitor identity**: `/`, `/calculators`, `/calculators/income-tax`, `/pricing`, `/sample` returned 200; preparation/account/export APIs returned 401 with private/no-store headers; `/workspace` returned 307. |
+| Genuine hosted identity/owners | Pending | Actual hosted login/sign-out, durable owner save/reload and two-real-owner read/list/update/export/delete isolation are not established by local mock identities or platform service access. |
+
+Initial browser harness failures were incorrect test assumptions about blank eligibility producing a blocker, Save and continue clearing a message, and exact year-label matching. Corrected checks passed without application changes. The current source changes are installation-runtime only; historical calculation approvals are not rewritten as a new review.
+
+The release remains an owner-only **private preview for validation testing**, not public/paid readiness. Historical sections below describe their original runs; where they say browser capability was unavailable or all browser checks were pending, this current section supplies the later bounded local browser evidence without closing genuine hosted-session gates.
 
 ## Evidence
 

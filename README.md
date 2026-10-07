@@ -47,7 +47,7 @@ See [commercial-delivery-blueprint.md](docs/commercial-delivery-blueprint.md) fo
 
 ## Development checks
 
-Latest integrated verification reported **79 tests passed, 0 failed**, with TypeScript passing, including all six specialist tools through the public evaluator. See `docs/verification-notes.md` for evidence and limitations. Run `npm test` for engines/fixtures/owner/API regressions, `npm run typecheck` for TypeScript, and the Sites skill's production build entrypoint for the exact deployable artifact. Source publication, deployment and final code review are separate gates. The runtime details below remain from the configured starter and explain auth, binding and local migration behaviour.
+Fresh verification on 7 October 2026, Windows / Node 22.20, passed **83 tests with 0 failures**, TypeScript noEmit and the exact Sites production build. Browser checks passed 45 calculator/navigation cases and nine local workspace cases using fictional data and mock identity; nine read-only hosted HTTP checks passed without visitor identity. Genuine hosted sign-in/sign-out, durable owner persistence and two-real-owner isolation remain pending. See `docs/verification-notes.md` for evidence and limitations. Run `npm test`, `npm run typecheck` and the Sites production build entrypoint for the current artifact. Packaging and deployment of the current changes remain separate pending steps.
 
 ## Vinext / Sites runtime
 
@@ -68,7 +68,7 @@ Run `node <plugin-root>/scripts/configure-execution-profile.mjs` only when the p
 
 This starter does not use `wrangler.jsonc`.
 
-This configured checkout pins pnpm 11.25.0. `install:ci` invokes the managed `scripts/install-pnpm.sh` helper with project-owned store/home and installation locks. Use the Sites dependency-install workflow for a new checkout; do not run overlapping installers or replace the established lockfile/package-manager configuration. The portable profile notes below describe the starter workflow and must be adapted through the Sites skill if using another environment.
+This configured checkout pins pnpm 11.25.0. `install:ci` uses a Node dispatcher: the portable branch runs on Windows without Bash, while the managed branch retains the existing `scripts/install-pnpm.sh` helper and its project-owned store/home and installation locks. The Sites dependency-install workflow successfully installed 639 packages from the frozen lockfile on Windows after network timeouts and cached retries. Use that workflow for a new checkout; do not run overlapping installers or replace the established lockfile/package-manager configuration.
 
 - **Portable:** Preserve host HOME, npm cache, registry, proxy, temporary paths, retry/concurrency settings, and lifecycle-script policy. Use `--prefer-offline --no-audit --no-fund`.
 - **Managed Linux:** Use the existing project-local HOME/cache/tmp setup and Linux install lock, tarball preflight, and timeout. Restore the image-seeded npm cache only when its lockfile hash matches; retain network fallback. Builds keep their existing timeout. These helpers are not invoked by the portable profile.
