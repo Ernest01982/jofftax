@@ -43,6 +43,28 @@ export type CalculatorDefinition = {
     contractAvailability: 'live' | 'pending';
     pendingReason?: string;
 };
+
+// Some tools contain distinct financial and tax models. Use the selected model
+// everywhere a period or result meaning is shown, rather than the catalog default.
+export function calculatorContext(def: CalculatorDefinition, inputs: Record<string, string>) {
+    let yearSensitive = def.yearSensitive, yearPolicy = def.yearPolicy || 'ordinaryAssessment', resultKind = def.resultKind;
+    if ((def.id === 'retirement-savings' || def.id === 'tfsa-calculator') && inputs.mode === 'growth') {
+        yearSensitive = false; yearPolicy = 'independent'; resultKind = 'projection';
+    } else if (def.id === 'tfsa-calculator') {
+        yearPolicy = 'assessmentTable'; resultKind = 'componentTax';
+    } else if (def.id === 'hourly-to-salary') {
+        if (inputs.mode === 'gross') { yearSensitive = false; yearPolicy = 'independent'; resultKind = 'projection'; }
+        else resultKind = inputs.mode === 'payrollPeriod' ? 'componentTax' : 'annualLiability';
+    }
+    return { yearSensitive, yearPolicy, resultKind, ordinaryPeriod: yearSensitive && yearPolicy === 'ordinaryAssessment' };
+}
+
+export function calculatorFields(def: CalculatorDefinition, inputs: Record<string, string>) {
+    return def.fields.map(field => def.id === 'net-to-gross' && field.id === 'target'
+        ? { ...field, label: inputs.mode === 'raise' ? 'Desired take-home increase in the selected period' : 'Desired take-home in the selected period',
+            help: inputs.mode === 'raise' ? 'Enter the additional net pay you want above your current take-home. The solver adds this increase to your current net pay; unmodelled deductions are excluded.' : 'Enter the total net pay you want in the selected monthly or annual period, excluding unmodelled deductions.' }
+        : field);
+}
 export type CalculatorItem = {
     label: string;
     value: number | string;
@@ -164,7 +186,7 @@ function primaryResult(out: CalculatorOutcome, id: string, a: Inputs): Calculato
 function provenance(id: string, year: AssessmentYear, sources: {
     title: string;
     url: string;
-}[]) { const d = CALCULATORS.find(c => c.id === id), r = RULES[year]; return { version: `za-${id}-${d?.yearSensitive ? year : 'checked-20261007'}-v1`, checked, period: d?.yearSensitive && r ? `${r.start} to ${r.end}` : 'Independent rule / arithmetic checked 7 October 2026', sources }; }
+}[], inputs: Inputs = {}) { const d = CALCULATORS.find(c => c.id === id), context = d ? calculatorContext(d, inputs) : null, r = RULES[year]; const independentPeriod = id === 'hourly-to-salary' && inputs.mode === 'gross' ? 'Arithmetic hourly schedule; not a tax assessment period' : ['retirement-savings','tfsa-calculator'].includes(id) && inputs.mode === 'growth' ? `${inputs.years || 'Entered term'}-year nominal financial projection` : 'Independent rule / arithmetic checked 7 October 2026'; return { version: `za-${id}-${context?.yearSensitive ? year : 'checked-20261007'}-v1`, checked, period: context?.yearSensitive && r ? `${r.start} to ${r.end}` : independentPeriod, sources }; }
 function normal(year: AssessmentYear, a: Inputs, income: number) { return salaryTax(year, income, a.age as Exclude<AgeBand, ''>, 0); }
 function uif(monthly: number) { return .01 * Math.min(monthly, 17712); }
 function salary(year: AssessmentYear, a: Inputs, annual: number) { const tax = normal(year, a, annual).liability; const employeeUIF = a.uifEligible === 'yes' ? uif(annual / 12) * 12 : 0; return { tax, employeeUIF, net: annual - tax - employeeUIF }; }
@@ -176,11 +198,13 @@ function fieldsValid(def: CalculatorDefinition, raw: unknown) {
     for (const key of Object.keys(a))
         if (!allowed.has(key))
             errors[key] = 'Unexpected field.';
-    for (const f of def.fields) {
+    for (const f of calculatorFields(def, a as Record<string, string>)) {
         const v = a[f.id], visible = !f.visibleWhen || f.visibleWhen.values.includes(String(a[f.visibleWhen.field]));
         if (v === undefined || v === '') {
-            if (f.required !== false && visible)
+            if (f.required !== false && visible) {
                 missing.push(`Complete: ${f.label}`);
+                errors[f.id] = 'Complete this required field.';
+            }
             continue;
         }
         if (!visible)
@@ -206,19 +230,17 @@ function fieldsValid(def: CalculatorDefinition, raw: unknown) {
 }
 export function evaluateCalculator(id: string, year: AssessmentYear, inputs: Inputs): CalculatorOutcome {
     const def = CALCULATORS.find(c => c.id === id);
-    const kind = def?.resultKind ?? 'guide', comparisonKey = def?.comparisonKey ?? id;
-    const base: CalculatorOutcome = { status: 'blocked', resultKind: kind, comparisonKey, items: [], blockers: [], assumptions: [], provenance: provenance(id, year, []) };
+    const kind = def ? calculatorContext(def, inputs || {}).resultKind : 'guide', comparisonKey = def?.comparisonKey ?? id;
+    const base: CalculatorOutcome = { status: 'blocked', resultKind: kind, comparisonKey, items: [], blockers: [], assumptions: [], provenance: provenance(id, year, [], inputs || {}) };
     if (!def)
         return { ...base, status: 'invalid', blockers: ['Choose a known calculator.'] };
     if (year !== 2026 && year !== 2027)
         return { ...base, status: 'invalid', blockers: ['Choose assessment year 2026 or 2027.'] };
     if (def.contractAvailability !== 'live')
         return { ...base, blockers: [def.pendingReason!] };
-    const { errors, missing } = fieldsValid(def, inputs);
+    const { errors } = fieldsValid(def, inputs);
     if (Object.keys(errors).length)
-        return { ...base, status: 'invalid', blockers: ['Correct the field formats before calculating.'], fieldErrors: errors };
-    if (missing.length)
-        return { ...base, blockers: missing };
+        return { ...base, status: 'invalid', blockers: ['Complete the required fields and correct any invalid values before calculating.'], fieldErrors: errors };
     const specialist = evaluateSpecialist(def, year, inputs);
     if (specialist)
         return primaryResult(specialist, id, inputs);

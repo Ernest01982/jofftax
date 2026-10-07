@@ -138,6 +138,7 @@ test('specialist strict schema, unknown and eligibility failures never retain nu
   for (const tool of SPECIALIST_DEFINITIONS) {
     const bad = evaluate(tool.id, { forgedClaim: '1000' }); assert.equal(bad.status, 'invalid'); assert.deepEqual(bad.items, []);
     for (const field of tool.fields) {
+      if (field.visibleWhen && !field.visibleWhen.values.includes(tool.example[field.visibleWhen.field])) continue;
       const missing = evaluate(tool.id, { [field.id]: '' }); assert.equal(missing.status, 'invalid'); assert.deepEqual(missing.items, []);
       if (field.type === 'choice') { const unsure = evaluate(tool.id, { [field.id]: 'unsure' }); assert.equal(unsure.status, 'blocked'); assert.deepEqual(unsure.items, []); }
       if (field.type === 'number') for (const badValue of ['-1', 'NaN', 'Infinity', '1e4', ' 1', '100000000001']) { const out = evaluate(tool.id, { [field.id]: badValue }); assert.equal(out.status, 'invalid'); assert.deepEqual(out.items, []); }

@@ -2,6 +2,7 @@ import { salaryTax } from './calculation';
 import { RULES, type AssessmentYear, type AgeBand } from './rules';
 import type { CalculatorDefinition as Def, CalculatorField as Field, CalculatorItem as Item, CalculatorOutcome as Outcome, CalculatorResultKind as Kind } from './calculators';
 import { FAMILY_DEFINITIONS } from './calculator-families';
+import { calculatorContext } from './calculators';
 type Inputs = Record<string, string>;
 const tri = [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'unsure', label: 'Not sure' }];
 const m = (id: string, label: string, help?: string): Field => ({ id, label, help, type: 'number', format: 'currency', min: 0, max: 100000000, step: .01 });
@@ -19,7 +20,6 @@ const resident = q('resident', 'Adult South African resident for the full assess
 const taxFields = [income, age, resident, simple], taxExample = { income: '360000', age: 'under65', resident: 'yes', simple: 'yes' };
 function def(id: string, title: string, category: string, kind: Kind, fields: Field[], example: Inputs, scope: string, yearSensitive = true): Def { return { id, title, category, description: scope, scopeSummary: scope, mode: 'estimate', yearSensitive, yearPolicy: yearSensitive ? 'ordinaryAssessment' : 'independent', fields, example, resultKind: kind, comparisonKey: id, contractAvailability: 'live' }; }
 const growthFields = [m('opening', 'Starting investment balance'), m('payment', 'Contribution per selected payment period'), s('frequency', 'Contribution frequency', [['monthly', 'Monthly'], ['annual', 'Annual']]), s('timing', 'Contribution timing', [['end', 'End of each period'], ['begin', 'Beginning of each period']]), n('years', 'Whole investment years', 0, 50), { ...n('growth', 'Assumed effective annual growth (%)', -50, 50, .01), format: 'percent' as const }, { ...n('inflation', 'Assumed annual inflation (%)', 0, 25, .01), format: 'percent' as const }];
-const growthExample = { opening: '10000', payment: '1000', frequency: 'monthly', timing: 'end', years: '1', growth: '0', inflation: '0' };
 const cgtFields = [m('gains', 'Aggregate recognised current-year capital gains'), m('losses', 'Aggregate recognised current-year capital losses'), m('priorLoss', 'Prior assessed capital loss'), q('capitalKnown', 'Confirmed capital classification, complete annual aggregates and assessed loss history?'), q('ordinaryAsset', 'No home/death/business relief, rollover, connected-person, joint-ownership or special disposal uncertainty?')];
 const cgtExample = { gains: '200000', losses: '0', priorLoss: '0', capitalKnown: 'yes', ordinaryAsset: 'yes', ...taxExample };
 const medical = structuredClone(FAMILY_DEFINITIONS.find(d => d.id === 'medical-aid-credits')!);
@@ -69,7 +69,9 @@ export function evaluatePersonal(def: Def, year: AssessmentYear, a: Inputs): Out
     if (!PERSONAL_DEFINITIONS.some(d => d.id === def.id))
         return null;
     const id = def.id, n = (k: string) => Number(a[k]), visibleFields = def.fields.filter(f => !f.visibleWhen || f.visibleWhen.values.includes(a[f.visibleWhen.field]));
-    const out: Outcome = { status: 'supported', resultKind: def.resultKind, comparisonKey: def.comparisonKey, items: [], blockers: [], assumptions: ['User-entered facts are not verified documents or a legal entitlement determination.'], provenance: { version: `za-${id}-${def.yearSensitive ? year : 'checked-20261007'}-v1`, checked: '7 October 2026', period: def.yearSensitive ? `${RULES[year].start} to ${RULES[year].end}` : 'Rule / financial scenario checked 7 October 2026', sources: [] } };
+    const context = calculatorContext(def, a);
+    const independentPeriod = id === 'hourly-to-salary' ? 'Arithmetic hourly schedule; not a tax assessment period' : `${a.years || 'Entered term'}-year nominal financial projection`;
+    const out: Outcome = { status: 'supported', resultKind: context.resultKind, comparisonKey: def.comparisonKey, items: [], blockers: [], assumptions: ['User-entered facts are not verified documents or a legal entitlement determination.'], provenance: { version: `za-${id}-${context.yearSensitive ? year : 'checked-20261007'}-v1`, checked: '7 October 2026', period: context.yearSensitive ? `${RULES[year].start} to ${RULES[year].end}` : context.yearPolicy === 'independent' && ['hourly-to-salary','retirement-savings','tfsa-calculator'].includes(id) ? independentPeriod : 'Rule / financial scenario checked 7 October 2026', sources: [] } };
     const need = (key: string, value = 'yes') => { if (a[key] !== value)
         out.blockers.push(`${def.fields.find(f => f.id === key)?.label}: clarify or obtain separate review.`); };
     const invalid = (message: string): Outcome => ({ ...out, status: 'invalid', items: [], blockers: [message] });

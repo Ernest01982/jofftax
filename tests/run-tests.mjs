@@ -9,7 +9,7 @@ import ts from 'typescript';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const build = mkdtempSync(join(root, 'tests', '.verification-'));
 try {
-  for (const name of ['rules', 'model', 'calculation', 'export', 'repository', 'api', 'calculators', 'calculator-families', 'calculator-personal', 'calculator-specialists']) {
+  for (const name of ['backend', 'backend-migration', 'rules', 'model', 'calculation', 'export', 'repository', 'api', 'calculators', 'calculator-families', 'calculator-personal', 'calculator-specialists']) {
     const source = readFileSync(join(root, 'lib', `${name}.ts`), 'utf8');
     const output = ts.transpileModule(source, {
       fileName: `${name}.ts`,
@@ -26,9 +26,9 @@ try {
   const presentation = ts.transpileModule(presentationSource, {
     fileName: 'calculator-presentation.ts', compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, esModuleInterop: true },
   });
-  writeFileSync(join(build, 'calculator-presentation.js'), presentation.outputText.replaceAll('../../lib/rules', './rules'));
+  writeFileSync(join(build, 'calculator-presentation.js'), presentation.outputText.replaceAll('../../lib/rules', './rules').replaceAll('../../lib/calculators', './calculators'));
   mkdirSync(join(build, 'routes'));
-  for (const name of ['preparation', 'export', 'account']) {
+  for (const name of ['preparation', 'export', 'account', 'backend-migration']) {
     const source = readFileSync(join(root, 'app', 'api', name, 'route.ts'), 'utf8');
     const output = ts.transpileModule(source, {
       fileName: 'route.ts', compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, esModuleInterop: true },

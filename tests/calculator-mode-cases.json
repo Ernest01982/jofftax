@@ -1,0 +1,1782 @@
+[
+  {
+    "name": "hourly gross schedule",
+    "id": "hourly-to-salary",
+    "year": 2026,
+    "inputs": {
+      "mode": "gross",
+      "hourly": "150",
+      "hours": "40",
+      "weeks": "48"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Annual gross pay equivalent": 288000,
+      "Monthly gross pay equivalent": 24000
+    }
+  },
+  {
+    "name": "hourly annual net zero",
+    "id": "hourly-to-salary",
+    "year": 2026,
+    "inputs": {
+      "mode": "annualNet",
+      "hourly": "0",
+      "hours": "40",
+      "weeks": "48",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes",
+      "levelYear": "yes",
+      "uifEligible": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Annual net illustration": 0
+    }
+  },
+  {
+    "name": "hourly partial-period withholding 2026",
+    "id": "hourly-to-salary",
+    "year": 2026,
+    "inputs": {
+      "mode": "payrollPeriod",
+      "periodPay": "90000",
+      "fullPeriods": "12",
+      "workedPeriods": "3",
+      "periodScope": "yes",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Annual-equivalent ordinary remuneration": 360000,
+      "Prorated worked-period withholding illustration": 14349.25,
+      "Actual annual assessment if only the entered period remuneration exists": 0
+    }
+  },
+  {
+    "name": "hourly partial-period withholding 2027",
+    "id": "hourly-to-salary",
+    "year": 2027,
+    "inputs": {
+      "mode": "payrollPeriod",
+      "periodPay": "90000",
+      "fullPeriods": "12",
+      "workedPeriods": "3",
+      "periodScope": "yes",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Annual-equivalent ordinary remuneration": 360000,
+      "Prorated worked-period withholding illustration": 14043,
+      "Actual annual assessment if only the entered period remuneration exists": 0
+    }
+  },
+  {
+    "name": "hourly worked periods exceed full",
+    "id": "hourly-to-salary",
+    "year": 2026,
+    "inputs": {
+      "mode": "payrollPeriod",
+      "periodPay": "90000",
+      "fullPeriods": "12",
+      "workedPeriods": "13",
+      "periodScope": "yes",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes"
+    },
+    "expectedStatus": "invalid"
+  },
+  {
+    "name": "netgross absolute monthly",
+    "id": "net-to-gross",
+    "year": 2026,
+    "inputs": {
+      "mode": "absolute",
+      "target": "25000",
+      "unit": "monthly",
+      "age": "under65",
+      "resident": "yes",
+      "levelYear": "yes",
+      "ordinaryOnly": "yes",
+      "uifEligible": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Recovered take-home in selected period": 25000
+    }
+  },
+  {
+    "name": "netgross raise monthly",
+    "id": "net-to-gross",
+    "year": 2026,
+    "inputs": {
+      "mode": "raise",
+      "currentGross": "30000",
+      "target": "1000",
+      "unit": "monthly",
+      "age": "under65",
+      "resident": "yes",
+      "levelYear": "yes",
+      "ordinaryOnly": "yes",
+      "uifEligible": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Recovered net raise in selected period": 1000
+    }
+  },
+  {
+    "name": "netgross absolute annual",
+    "id": "net-to-gross",
+    "year": 2026,
+    "inputs": {
+      "mode": "absolute",
+      "target": "300000",
+      "unit": "annual",
+      "age": "under65",
+      "resident": "yes",
+      "levelYear": "yes",
+      "ordinaryOnly": "yes",
+      "uifEligible": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Recovered take-home in selected period": 300000
+    }
+  },
+  {
+    "name": "netgross raise annual",
+    "id": "net-to-gross",
+    "year": 2026,
+    "inputs": {
+      "mode": "raise",
+      "currentGross": "360000",
+      "target": "12000",
+      "unit": "annual",
+      "age": "under65",
+      "resident": "yes",
+      "levelYear": "yes",
+      "ordinaryOnly": "yes",
+      "uifEligible": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Recovered net raise in selected period": 12000
+    }
+  },
+  {
+    "name": "UIF contributions cap",
+    "id": "uif",
+    "year": 2026,
+    "inputs": {
+      "mode": "contributions",
+      "monthly": "30000",
+      "eligible": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Monthly employee UIF": 177.12,
+      "Monthly employer UIF": 177.12
+    }
+  },
+  {
+    "name": "UIF unemployment full credits",
+    "id": "uif",
+    "year": 2026,
+    "inputs": {
+      "mode": "unemployment",
+      "monthly": "17712",
+      "eligible": "yes",
+      "history": "yes",
+      "contributingDays": "1460",
+      "requestedDays": "365"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Estimated benefit for these known days": 67455.06016438357
+    }
+  },
+  {
+    "name": "UIF unemployment zero credit",
+    "id": "uif",
+    "year": 2026,
+    "inputs": {
+      "mode": "unemployment",
+      "monthly": "17712",
+      "eligible": "yes",
+      "history": "yes",
+      "contributingDays": "3",
+      "requestedDays": "365"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Estimated benefit for these known days": 0
+    }
+  },
+  {
+    "name": "UIF unknown history",
+    "id": "uif",
+    "year": 2026,
+    "inputs": {
+      "mode": "unemployment",
+      "monthly": "17712",
+      "eligible": "yes",
+      "history": "unsure",
+      "contributingDays": "1460",
+      "requestedDays": "365"
+    },
+    "expectedStatus": "blocked"
+  },
+  {
+    "name": "UIF illness Act rate",
+    "id": "uif",
+    "year": 2026,
+    "inputs": {
+      "mode": "illness",
+      "monthly": "30000",
+      "leavePay": "0",
+      "eligible": "yes",
+      "history": "yes",
+      "requestedDays": "239",
+      "availableDays": "365",
+      "certified": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Illustrative daily wage-shortfall top-up": 221.2786849315
+    }
+  },
+  {
+    "name": "UIF illness full employer pay",
+    "id": "uif",
+    "year": 2026,
+    "inputs": {
+      "mode": "illness",
+      "monthly": "30000",
+      "leavePay": "30000",
+      "eligible": "yes",
+      "history": "yes",
+      "requestedDays": "239",
+      "availableDays": "365",
+      "certified": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Estimated benefit for these known days": 0
+    }
+  },
+  {
+    "name": "UIF illness six day boundary",
+    "id": "uif",
+    "year": 2026,
+    "inputs": {
+      "mode": "illness",
+      "monthly": "30000",
+      "leavePay": "0",
+      "eligible": "yes",
+      "history": "yes",
+      "requestedDays": "6",
+      "availableDays": "365",
+      "certified": "yes"
+    },
+    "expectedStatus": "blocked"
+  },
+  {
+    "name": "UIF maternity maximum",
+    "id": "uif",
+    "year": 2026,
+    "inputs": {
+      "mode": "maternity",
+      "monthly": "30000",
+      "leavePay": "0",
+      "eligible": "yes",
+      "history": "yes",
+      "requestedDays": "365",
+      "availableDays": "365",
+      "employment13": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Illustrative daily wage-shortfall top-up": 384.3261369863,
+      "Known eligible days used": 121
+    }
+  },
+  {
+    "name": "retirement tax saving",
+    "id": "retirement-savings",
+    "year": 2026,
+    "inputs": {
+      "mode": "taxSaving",
+      "income": "600000",
+      "contributions": "60000",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes",
+      "reconciled": "yes",
+      "currentOnly": "yes",
+      "carryovers": "no",
+      "withdrawals": "no"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Allowed deduction": 60000,
+      "Taxable income after deduction": 540000,
+      "Estimated contribution tax saving": 21600
+    }
+  },
+  {
+    "name": "retirement-savings zero growth",
+    "id": "retirement-savings",
+    "year": 2026,
+    "inputs": {
+      "mode": "growth",
+      "opening": "10000",
+      "payment": "1000",
+      "frequency": "monthly",
+      "timing": "end",
+      "years": "1",
+      "growth": "0",
+      "inflation": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Projected nominal investment balance": 22000
+    }
+  },
+  {
+    "name": "retirement-savings zero horizon",
+    "id": "retirement-savings",
+    "year": 2026,
+    "inputs": {
+      "mode": "growth",
+      "opening": "10000",
+      "payment": "1000",
+      "frequency": "monthly",
+      "timing": "end",
+      "years": "0",
+      "growth": "0",
+      "inflation": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Projected nominal investment balance": 10000
+    }
+  },
+  {
+    "name": "retirement-savings declining investment",
+    "id": "retirement-savings",
+    "year": 2026,
+    "inputs": {
+      "mode": "growth",
+      "opening": "10000",
+      "payment": "0",
+      "frequency": "monthly",
+      "timing": "end",
+      "years": "1",
+      "growth": "-50",
+      "inflation": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Projected nominal investment balance": 5000
+    }
+  },
+  {
+    "name": "retirement-savings annual begin",
+    "id": "retirement-savings",
+    "year": 2026,
+    "inputs": {
+      "mode": "growth",
+      "opening": "10000",
+      "payment": "1000",
+      "frequency": "annual",
+      "timing": "begin",
+      "years": "1",
+      "growth": "10",
+      "inflation": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Projected nominal investment balance": 12100
+    }
+  },
+  {
+    "name": "retirement-savings annual end",
+    "id": "retirement-savings",
+    "year": 2026,
+    "inputs": {
+      "mode": "growth",
+      "opening": "10000",
+      "payment": "1000",
+      "frequency": "annual",
+      "timing": "end",
+      "years": "1",
+      "growth": "10",
+      "inflation": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Projected nominal investment balance": 12000
+    }
+  },
+  {
+    "name": "tfsa-calculator zero growth",
+    "id": "tfsa-calculator",
+    "year": 2026,
+    "inputs": {
+      "mode": "growth",
+      "opening": "10000",
+      "payment": "1000",
+      "frequency": "monthly",
+      "timing": "end",
+      "years": "1",
+      "growth": "0",
+      "inflation": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Projected nominal investment balance": 22000
+    }
+  },
+  {
+    "name": "tfsa-calculator zero horizon",
+    "id": "tfsa-calculator",
+    "year": 2026,
+    "inputs": {
+      "mode": "growth",
+      "opening": "10000",
+      "payment": "1000",
+      "frequency": "monthly",
+      "timing": "end",
+      "years": "0",
+      "growth": "0",
+      "inflation": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Projected nominal investment balance": 10000
+    }
+  },
+  {
+    "name": "tfsa-calculator declining investment",
+    "id": "tfsa-calculator",
+    "year": 2026,
+    "inputs": {
+      "mode": "growth",
+      "opening": "10000",
+      "payment": "0",
+      "frequency": "monthly",
+      "timing": "end",
+      "years": "1",
+      "growth": "-50",
+      "inflation": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Projected nominal investment balance": 5000
+    }
+  },
+  {
+    "name": "tfsa-calculator annual begin",
+    "id": "tfsa-calculator",
+    "year": 2026,
+    "inputs": {
+      "mode": "growth",
+      "opening": "10000",
+      "payment": "1000",
+      "frequency": "annual",
+      "timing": "begin",
+      "years": "1",
+      "growth": "10",
+      "inflation": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Projected nominal investment balance": 12100
+    }
+  },
+  {
+    "name": "tfsa-calculator annual end",
+    "id": "tfsa-calculator",
+    "year": 2026,
+    "inputs": {
+      "mode": "growth",
+      "opening": "10000",
+      "payment": "1000",
+      "frequency": "annual",
+      "timing": "end",
+      "years": "1",
+      "growth": "10",
+      "inflation": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Projected nominal investment balance": 12000
+    }
+  },
+  {
+    "name": "TFSA annual-only excess",
+    "id": "tfsa-calculator",
+    "year": 2027,
+    "inputs": {
+      "mode": "headroom",
+      "annual": "50000",
+      "lifetime": "450000",
+      "historyKnown": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Annual-only excess-tax illustration": 1600
+    }
+  },
+  {
+    "name": "TFSA lifetime breach diagnostic",
+    "id": "tfsa-calculator",
+    "year": 2027,
+    "inputs": {
+      "mode": "headroom",
+      "annual": "50000",
+      "lifetime": "490000",
+      "historyKnown": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Current annual contribution excess": 4000,
+      "Lifetime contribution excess": 40000
+    }
+  },
+  {
+    "name": "provisional first",
+    "id": "provisional-tax",
+    "year": 2026,
+    "inputs": {
+      "period": "first",
+      "income": "360000",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes",
+      "credits": "20000",
+      "creditsKnown": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Provisional instalment planning amount": 8698.5
+    }
+  },
+  {
+    "name": "provisional second",
+    "id": "provisional-tax",
+    "year": 2026,
+    "inputs": {
+      "period": "second",
+      "income": "360000",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes",
+      "credits": "20000",
+      "creditsKnown": "yes",
+      "firstPaid": "10000"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Provisional instalment planning amount": 27397
+    }
+  },
+  {
+    "name": "provisional basic four uplift years",
+    "id": "provisional-tax",
+    "year": 2027,
+    "inputs": {
+      "period": "basic",
+      "assessed": "195000",
+      "elapsedYears": "4",
+      "oldAssessment": "yes",
+      "assessmentKnown": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Illustrative basic amount": 257400
+    }
+  },
+  {
+    "name": "provisional basic contradictory zero years",
+    "id": "provisional-tax",
+    "year": 2027,
+    "inputs": {
+      "period": "basic",
+      "assessed": "195000",
+      "elapsedYears": "0",
+      "oldAssessment": "yes",
+      "assessmentKnown": "yes"
+    },
+    "expectedStatus": "blocked"
+  },
+  {
+    "name": "travel deemed",
+    "id": "travel-allowance",
+    "year": 2026,
+    "inputs": {
+      "vehicleCost": "300000",
+      "allowance": "100000",
+      "days": "365",
+      "totalKm": "20000",
+      "businessKm": "10000",
+      "fuelBorne": "yes",
+      "maintenanceBorne": "yes",
+      "records": "yes",
+      "method": "deemed"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Illustrative allowance deduction": 68078.5
+    }
+  },
+  {
+    "name": "travel actual costs",
+    "id": "travel-allowance",
+    "year": 2026,
+    "inputs": {
+      "vehicleCost": "300000",
+      "allowance": "100000",
+      "days": "365",
+      "totalKm": "20000",
+      "businessKm": "10000",
+      "fuelBorne": "yes",
+      "maintenanceBorne": "yes",
+      "records": "yes",
+      "method": "actual",
+      "actualCosts": "120000"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Illustrative allowance deduction": 60000
+    }
+  },
+  {
+    "name": "travel actual allowance cap",
+    "id": "travel-allowance",
+    "year": 2026,
+    "inputs": {
+      "vehicleCost": "300000",
+      "allowance": "1000",
+      "days": "365",
+      "totalKm": "20000",
+      "businessKm": "10000",
+      "fuelBorne": "yes",
+      "maintenanceBorne": "yes",
+      "records": "yes",
+      "method": "actual",
+      "actualCosts": "120000"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Illustrative allowance deduction": 1000
+    }
+  },
+  {
+    "name": "travel impossible business distance",
+    "id": "travel-allowance",
+    "year": 2026,
+    "inputs": {
+      "vehicleCost": "300000",
+      "allowance": "100000",
+      "days": "365",
+      "totalKm": "20000",
+      "businessKm": "20001",
+      "fuelBorne": "yes",
+      "maintenanceBorne": "yes",
+      "records": "yes",
+      "method": "deemed"
+    },
+    "expectedStatus": "invalid"
+  },
+  {
+    "name": "lump sum retirement",
+    "id": "retirement-fund-lump-sum-tax",
+    "year": 2026,
+    "inputs": {
+      "benefit": "retirement",
+      "amount": "100000",
+      "priorRetirement": "0",
+      "priorWithdrawals": "0",
+      "priorSeverance": "0",
+      "historyKnown": "yes",
+      "taxableKnown": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Current benefit table tax": 0
+    }
+  },
+  {
+    "name": "lump sum withdrawal",
+    "id": "retirement-fund-lump-sum-tax",
+    "year": 2026,
+    "inputs": {
+      "benefit": "withdrawal",
+      "amount": "100000",
+      "priorRetirement": "0",
+      "priorWithdrawals": "0",
+      "priorSeverance": "0",
+      "historyKnown": "yes",
+      "taxableKnown": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Current benefit table tax": 13050
+    }
+  },
+  {
+    "name": "lump sum cumulative history",
+    "id": "retirement-fund-lump-sum-tax",
+    "year": 2026,
+    "inputs": {
+      "benefit": "retirement",
+      "amount": "100000",
+      "priorRetirement": "500000",
+      "priorWithdrawals": "0",
+      "priorSeverance": "0",
+      "historyKnown": "yes",
+      "taxableKnown": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Current benefit table tax": 9000
+    }
+  },
+  {
+    "name": "crypto capital",
+    "id": "crypto-tax",
+    "year": 2026,
+    "inputs": {
+      "classification": "capital",
+      "classificationKnown": "yes",
+      "gains": "200000",
+      "losses": "0",
+      "priorLoss": "0",
+      "capitalKnown": "yes",
+      "ordinaryAsset": "yes",
+      "income": "360000",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Taxable capital-gain inclusion": 64000
+    }
+  },
+  {
+    "name": "crypto revenue",
+    "id": "crypto-tax",
+    "year": 2026,
+    "inputs": {
+      "classification": "revenue",
+      "classificationKnown": "yes",
+      "tradingProfit": "100000",
+      "income": "360000",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Incremental annual normal tax": 30475
+    }
+  },
+  {
+    "name": "crypto unresolved classification",
+    "id": "crypto-tax",
+    "year": 2026,
+    "inputs": {
+      "classification": "unsure",
+      "classificationKnown": "yes",
+      "income": "360000",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes"
+    },
+    "expectedStatus": "blocked"
+  },
+  {
+    "name": "VAT exclusive",
+    "id": "vat",
+    "year": 2026,
+    "inputs": {
+      "mode": "exclusive",
+      "amount": "100",
+      "standard": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "VAT at 15%": 15,
+      "Amount excluding VAT": 100,
+      "Amount including VAT": 115
+    }
+  },
+  {
+    "name": "VAT inclusive",
+    "id": "vat",
+    "year": 2026,
+    "inputs": {
+      "mode": "inclusive",
+      "amount": "115",
+      "standard": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "VAT at 15%": 15,
+      "Amount excluding VAT": 100,
+      "Amount including VAT": 115
+    }
+  },
+  {
+    "name": "company car maintenance yes",
+    "id": "company-car-tax",
+    "year": 2026,
+    "inputs": {
+      "value": "400000",
+      "months": "12",
+      "totalKm": "20000",
+      "businessKm": "5000",
+      "carScope": "yes",
+      "income": "360000",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes",
+      "plan": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Monthly gross car benefit": 13000,
+      "Annual gross car benefit": 156000,
+      "Assessment benefit after verified business-use ratio": 117000
+    }
+  },
+  {
+    "name": "company car maintenance no",
+    "id": "company-car-tax",
+    "year": 2026,
+    "inputs": {
+      "value": "400000",
+      "months": "12",
+      "totalKm": "20000",
+      "businessKm": "5000",
+      "carScope": "yes",
+      "income": "360000",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes",
+      "plan": "no"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Monthly gross car benefit": 14000,
+      "Annual gross car benefit": 168000,
+      "Assessment benefit after verified business-use ratio": 126000
+    }
+  },
+  {
+    "name": "company car all business",
+    "id": "company-car-tax",
+    "year": 2026,
+    "inputs": {
+      "value": "400000",
+      "months": "12",
+      "totalKm": "20000",
+      "businessKm": "20000",
+      "carScope": "yes",
+      "income": "360000",
+      "age": "under65",
+      "resident": "yes",
+      "simple": "yes",
+      "plan": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Assessment benefit after verified business-use ratio": 0
+    }
+  },
+  {
+    "name": "deadline nonprovisional 2026",
+    "id": "tax-deadlines",
+    "year": 2026,
+    "inputs": {
+      "category": "nonprovisional",
+      "today": "2026-10-07"
+    },
+    "expectedStatus": "supported",
+    "expectedCalendarAbsent": [
+      "2027-02-26"
+    ],
+    "expectedCalendarDates": [
+      "2026-07-13",
+      "2026-10-23"
+    ]
+  },
+  {
+    "name": "deadline provisional 2026",
+    "id": "tax-deadlines",
+    "year": 2026,
+    "inputs": {
+      "category": "provisional",
+      "today": "2026-10-07"
+    },
+    "expectedStatus": "supported",
+    "expectedCalendarAbsent": [
+      "2027-02-26"
+    ],
+    "expectedCalendarDates": [
+      "2026-08-31",
+      "2027-01-22"
+    ]
+  },
+  {
+    "name": "deadline trust 2026",
+    "id": "tax-deadlines",
+    "year": 2026,
+    "inputs": {
+      "category": "trust",
+      "today": "2026-10-07"
+    },
+    "expectedStatus": "supported",
+    "expectedCalendarAbsent": [
+      "2027-02-26"
+    ],
+    "expectedCalendarDates": [
+      "2026-09-19",
+      "2027-01-22"
+    ]
+  },
+  {
+    "name": "deadline employer 2026",
+    "id": "tax-deadlines",
+    "year": 2026,
+    "inputs": {
+      "category": "employer",
+      "today": "2026-10-07"
+    },
+    "expectedStatus": "supported",
+    "expectedCalendarAbsent": [
+      "2027-02-26"
+    ],
+    "expectedCalendarDates": [
+      "2026-09-21",
+      "2026-10-31"
+    ]
+  },
+  {
+    "name": "deadline nonprovisional 2027",
+    "id": "tax-deadlines",
+    "year": 2027,
+    "inputs": {
+      "category": "nonprovisional",
+      "today": "2026-10-07"
+    },
+    "expectedStatus": "supported",
+    "expectedCalendarAbsent": [
+      "2027-02-26"
+    ],
+    "expectedText": {
+      "2027 ITR12 / ITR12T filing season": "No filing-season deadline"
+    }
+  },
+  {
+    "name": "deadline provisional 2027",
+    "id": "tax-deadlines",
+    "year": 2027,
+    "inputs": {
+      "category": "provisional",
+      "today": "2026-10-07"
+    },
+    "expectedStatus": "supported",
+    "expectedCalendarAbsent": [
+      "2027-02-26"
+    ],
+    "expectedCalendarDates": [
+      "2026-08-31",
+      "2027-01-22"
+    ]
+  },
+  {
+    "name": "deadline trust 2027",
+    "id": "tax-deadlines",
+    "year": 2027,
+    "inputs": {
+      "category": "trust",
+      "today": "2026-10-07"
+    },
+    "expectedStatus": "supported",
+    "expectedCalendarAbsent": [
+      "2027-02-26"
+    ],
+    "expectedText": {
+      "2027 ITR12 / ITR12T filing season": "No filing-season deadline"
+    }
+  },
+  {
+    "name": "deadline employer 2027",
+    "id": "tax-deadlines",
+    "year": 2027,
+    "inputs": {
+      "category": "employer",
+      "today": "2026-10-07"
+    },
+    "expectedStatus": "supported",
+    "expectedCalendarAbsent": [
+      "2027-02-26"
+    ],
+    "expectedCalendarDates": [
+      "2026-09-21",
+      "2026-10-31"
+    ]
+  },
+  {
+    "name": "documents all situations",
+    "id": "tax-return-documents",
+    "year": 2026,
+    "inputs": {
+      "salary": "yes",
+      "investments": "yes",
+      "medical": "yes",
+      "retirement": "yes",
+      "travel": "yes",
+      "donations": "yes",
+      "business": "yes",
+      "capital": "yes",
+      "homeOffice": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedLabels": [
+      "Employment / fund IRP5 or IT3(a)",
+      "Medical scheme tax certificate",
+      "Home-office evidence"
+    ]
+  },
+  {
+    "name": "documents uncertain medical",
+    "id": "tax-return-documents",
+    "year": 2026,
+    "inputs": {
+      "salary": "yes",
+      "investments": "yes",
+      "medical": "unsure",
+      "retirement": "yes",
+      "travel": "yes",
+      "donations": "yes",
+      "business": "yes",
+      "capital": "yes",
+      "homeOffice": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedLabels": [
+      "Employment / fund IRP5 or IT3(a)",
+      "Medical scheme tax certificate",
+      "Home-office evidence"
+    ]
+  },
+  {
+    "name": "refund not assessed",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "no"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "No 72-hour countdown"
+    }
+  },
+  {
+    "name": "refund assessed amount 0",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "yes",
+      "bank": "no",
+      "verification": "no",
+      "audit": "no",
+      "debt": "no",
+      "paymentDate": "no",
+      "refund": "0"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "roll forward"
+    }
+  },
+  {
+    "name": "refund assessed amount 80",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "yes",
+      "bank": "no",
+      "verification": "no",
+      "audit": "no",
+      "debt": "no",
+      "paymentDate": "no",
+      "refund": "80"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "roll forward"
+    }
+  },
+  {
+    "name": "refund assessed amount 100",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "yes",
+      "bank": "no",
+      "verification": "no",
+      "audit": "no",
+      "debt": "no",
+      "paymentDate": "no",
+      "refund": "100"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "exactly R100"
+    }
+  },
+  {
+    "name": "refund assessed amount 1000",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "yes",
+      "bank": "no",
+      "verification": "no",
+      "audit": "no",
+      "debt": "no",
+      "paymentDate": "no",
+      "refund": "1000"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "conditional 72-hour"
+    }
+  },
+  {
+    "name": "refund bank",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "yes",
+      "bank": "yes",
+      "verification": "no",
+      "audit": "no",
+      "debt": "no",
+      "paymentDate": "no",
+      "refund": "1000"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "resolve banking"
+    }
+  },
+  {
+    "name": "refund verification",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "yes",
+      "bank": "no",
+      "verification": "yes",
+      "audit": "no",
+      "debt": "no",
+      "paymentDate": "no",
+      "refund": "1000"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "resolve banking"
+    }
+  },
+  {
+    "name": "refund audit",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "yes",
+      "bank": "no",
+      "verification": "no",
+      "audit": "yes",
+      "debt": "no",
+      "paymentDate": "no",
+      "refund": "1000"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "resolve banking"
+    }
+  },
+  {
+    "name": "refund debt",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "yes",
+      "bank": "no",
+      "verification": "no",
+      "audit": "no",
+      "debt": "yes",
+      "paymentDate": "no",
+      "refund": "1000"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "resolve banking"
+    }
+  },
+  {
+    "name": "refund paymentDate",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "yes",
+      "bank": "no",
+      "verification": "no",
+      "audit": "no",
+      "debt": "no",
+      "paymentDate": "yes",
+      "refund": "1000"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "payment date in the actual"
+    }
+  },
+  {
+    "name": "refund assessed unknown amount",
+    "id": "where-is-my-sars-refund",
+    "year": 2026,
+    "inputs": {
+      "assessed": "yes",
+      "bank": "no",
+      "verification": "no",
+      "audit": "no",
+      "debt": "no",
+      "paymentDate": "no"
+    },
+    "expectedStatus": "supported",
+    "expectedText": {
+      "Primary next action": "unknown amount is not a zero"
+    }
+  },
+  {
+    "name": "wear category computer",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "12000",
+      "asset": "computer",
+      "tradePercent": "100",
+      "method": "straight",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Full-year trade-apportioned instalment": 4000
+    }
+  },
+  {
+    "name": "wear category tablet",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "12000",
+      "asset": "tablet",
+      "tradePercent": "100",
+      "method": "straight",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Full-year trade-apportioned instalment": 6000
+    }
+  },
+  {
+    "name": "wear category furniture",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "12000",
+      "asset": "furniture",
+      "tradePercent": "100",
+      "method": "straight",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Full-year trade-apportioned instalment": 2000
+    }
+  },
+  {
+    "name": "wear category electronicOffice",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "12000",
+      "asset": "electronicOffice",
+      "tradePercent": "100",
+      "method": "straight",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Full-year trade-apportioned instalment": 4000
+    }
+  },
+  {
+    "name": "wear category mechanicalOffice",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "12000",
+      "asset": "mechanicalOffice",
+      "tradePercent": "100",
+      "method": "straight",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Full-year trade-apportioned instalment": 2400
+    }
+  },
+  {
+    "name": "wear category photocopier",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "12000",
+      "asset": "photocopier",
+      "tradePercent": "100",
+      "method": "straight",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Full-year trade-apportioned instalment": 2400
+    }
+  },
+  {
+    "name": "wear category phone",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "12000",
+      "asset": "phone",
+      "tradePercent": "100",
+      "method": "straight",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Full-year trade-apportioned instalment": 6000
+    }
+  },
+  {
+    "name": "wear immediate below7000",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "6999",
+      "asset": "computer",
+      "tradePercent": "100",
+      "method": "small",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "One-time immediate allowance in financial year ending 2026-02-28": 6999
+    }
+  },
+  {
+    "name": "wear immediate at7000 blocked",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "7000",
+      "asset": "computer",
+      "tradePercent": "100",
+      "method": "small",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "yes"
+    },
+    "expectedStatus": "blocked"
+  },
+  {
+    "name": "wear unsupported category",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "12000",
+      "asset": "unsupported",
+      "tradePercent": "100",
+      "method": "straight",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "yes"
+    },
+    "expectedStatus": "blocked"
+  },
+  {
+    "name": "12C new",
+    "id": "s12c-wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "100000",
+      "cashPrice": "100000",
+      "condition": "new",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "directManufacturing": "yes",
+      "restrictedUse": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Financial year ending 2026-02-28: 40% allowance": 40000
+    }
+  },
+  {
+    "name": "12C used",
+    "id": "s12c-wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "100000",
+      "cashPrice": "100000",
+      "condition": "used",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "directManufacturing": "yes",
+      "restrictedUse": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Financial year ending 2026-02-28: 20% allowance": 20000
+    }
+  },
+  {
+    "name": "SBC wear manufacturing",
+    "id": "sbc-wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "100000",
+      "cashPrice": "100000",
+      "assetMode": "manufacturing",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "sbcAcquisition": "yes",
+      "sbcFirstUse": "yes",
+      "classification": "yes",
+      "allTrade": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Financial year ending 2026-02-28: 100% allowance": 100000
+    }
+  },
+  {
+    "name": "SBC wear accelerated",
+    "id": "sbc-wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "100000",
+      "cashPrice": "100000",
+      "assetMode": "accelerated",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "sbcAcquisition": "yes",
+      "sbcFirstUse": "yes",
+      "classification": "yes",
+      "allTrade": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Financial year ending 2026-02-28: 50% allowance": 50000
+    }
+  },
+  {
+    "name": "homeoffice annual",
+    "id": "home-office-expense-calculator",
+    "year": 2026,
+    "inputs": {
+      "costs": "12000",
+      "officeArea": "20",
+      "homeArea": "200",
+      "months": "6",
+      "costPeriod": "annual",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "exclusive": "yes",
+      "duties": "yes",
+      "costsKnown": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Illustrative premises-cost deduction": 600
+    }
+  },
+  {
+    "name": "homeoffice qualifying",
+    "id": "home-office-expense-calculator",
+    "year": 2026,
+    "inputs": {
+      "costs": "12000",
+      "officeArea": "20",
+      "homeArea": "200",
+      "months": "6",
+      "costPeriod": "qualifying",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "exclusive": "yes",
+      "duties": "yes",
+      "costsKnown": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Illustrative premises-cost deduction": 1200
+    }
+  },
+  {
+    "name": "lease improvement stipulated",
+    "id": "s11g-leasehold-improvements",
+    "year": 2026,
+    "inputs": {
+      "actual": "550000",
+      "limit": "600000",
+      "limitBasis": "stipulated",
+      "completed": "2026-02-28",
+      "remainingMonths": "228",
+      "yearEnd": "2026-02-28",
+      "obligation": "yes",
+      "valueKnown": "yes",
+      "incomeUse": "yes",
+      "lessorIncome": "yes",
+      "termKnown": "yes",
+      "noEarlyEnd": "yes",
+      "ordinaryYear": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Financial year ending 2026-02-28: 0 qualifying months": 0
+    }
+  },
+  {
+    "name": "lease improvement fairValue",
+    "id": "s11g-leasehold-improvements",
+    "year": 2026,
+    "inputs": {
+      "actual": "550000",
+      "limit": "600000",
+      "limitBasis": "fairValue",
+      "completed": "2026-02-28",
+      "remainingMonths": "228",
+      "yearEnd": "2026-02-28",
+      "obligation": "yes",
+      "valueKnown": "yes",
+      "incomeUse": "yes",
+      "lessorIncome": "yes",
+      "termKnown": "yes",
+      "noEarlyEnd": "yes",
+      "ordinaryYear": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Financial year ending 2026-02-28: 0 qualifying months": 0
+    }
+  },
+  {
+    "name": "wear straight standalone omitted",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "12000",
+      "asset": "computer",
+      "tradePercent": "100",
+      "method": "straight",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Full-year trade-apportioned instalment": 4000
+    }
+  },
+  {
+    "name": "wear straight standalone unsure",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "12000",
+      "asset": "computer",
+      "tradePercent": "100",
+      "method": "straight",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "unsure"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Full-year trade-apportioned instalment": 4000
+    }
+  },
+  {
+    "name": "wear small standalone unsure",
+    "id": "wear-and-tear",
+    "year": 2026,
+    "inputs": {
+      "cost": "6999",
+      "asset": "computer",
+      "tradePercent": "100",
+      "method": "small",
+      "acquired": "2025-03-01",
+      "firstUse": "2025-03-01",
+      "yearEnd": "2026-02-28",
+      "ordinaryYear": "yes",
+      "unclaimed": "yes",
+      "assetScope": "yes",
+      "newOwned": "yes",
+      "standalone": "unsure"
+    },
+    "expectedStatus": "blocked"
+  },
+  {
+    "name": "travel actual missing cost invalid",
+    "id": "travel-allowance",
+    "year": 2026,
+    "inputs": {
+      "allowance": "100000",
+      "totalKm": "20000",
+      "businessKm": "10000",
+      "records": "yes",
+      "method": "actual"
+    },
+    "expectedStatus": "invalid"
+  },
+  {
+    "name": "travel actual excludes deemed fields",
+    "id": "travel-allowance",
+    "year": 2026,
+    "inputs": {
+      "allowance": "100000",
+      "totalKm": "20000",
+      "businessKm": "10000",
+      "records": "yes",
+      "method": "actual",
+      "actualCosts": "120000"
+    },
+    "expectedStatus": "supported",
+    "expectedItems": {
+      "Established qualifying actual costs": 120000,
+      "Illustrative allowance deduction": 60000
+    },
+    "expectedAbsentItems": [
+      "Prorated fixed component",
+      "Deemed cost per kilometre"
+    ]
+  }
+]

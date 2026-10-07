@@ -1,4 +1,5 @@
 import type { CalculatorDefinition, CalculatorOutcome, CalculatorField } from '../../lib/calculators';
+import { calculatorContext, calculatorFields } from '../../lib/calculators';
 import { period, type AssessmentYear } from '../../lib/rules';
 
 export function formatValue(value: number | string, format?: string): string {
@@ -18,15 +19,17 @@ export function calculatorPack(
   example: boolean,
 ) {
   const activeInputs = activeCalculatorInputs(calculator, inputs);
-  const activeFields = calculator.fields.filter((field) => Object.prototype.hasOwnProperty.call(activeInputs, field.id));
+  const context = calculatorContext(calculator, inputs);
+  const activeFields = calculatorFields(calculator, inputs).filter((field) => Object.prototype.hasOwnProperty.call(activeInputs, field.id));
   return {
     document: 'Joff Tax free calculator scenario',
     calculatorId: calculator.id,
     title: calculator.title,
     example,
     createdAt: new Date().toISOString(),
-    assessmentYear: calculator.yearSensitive && (calculator.yearPolicy || 'ordinaryAssessment') === 'ordinaryAssessment' ? year : null,
-    period: outcome.provenance.period || (calculator.yearSensitive && (calculator.yearPolicy || 'ordinaryAssessment') === 'ordinaryAssessment' ? period(year) : 'See the entered dates, financial year-end and assumptions for this component.'),
+    assessmentYear: context.ordinaryPeriod ? year : null,
+    ruleYear: context.yearSensitive ? year : null,
+    period: outcome.provenance.period || (context.ordinaryPeriod ? period(year) : 'See the entered dates, financial year-end and assumptions for this component.'),
     displayInputs: Object.fromEntries(activeFields.map((field) => [field.id, displayInput(field, activeInputs[field.id] || '')])),
     inputLabels: Object.fromEntries(activeFields.map((field) => [field.id, field.label])),
     inputs: activeInputs,
@@ -43,6 +46,7 @@ export function calculatorText(pack: ReturnType<typeof calculatorPack>): string 
     pack.notice,
     `Created: ${pack.createdAt}`,
     `Assessment year: ${pack.assessmentYear ?? 'Not an ordinary-income assessment-year calculation'}`,
+    ...(pack.ruleYear !== null && pack.assessmentYear === null ? [`Selected rule year: ${pack.ruleYear}`] : []),
     `Period: ${pack.period}`,
     `Result kind: ${pack.outcome.resultKind}`,
     `Status: ${pack.outcome.status}`,

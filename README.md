@@ -8,7 +8,7 @@ A South African tax toolkit and preparation workspace, built as an original **pr
 - `/calculators/[slug]`: guided inputs, named eligibility blockers, numeric breakdowns or useful branching guidance, rules/date provenance and official sources.
 - Free session comparisons of up to three semantically compatible scenarios, copy, real text/JSON downloads and print. Calculator financial values stay in tab memory; only non-sensitive favourite slugs persist on the device. Refreshing/leaving the calculator area clears monetary scenarios.
 - Published/operational deadline calendar downloads are voluntary `.ics` imports, not an active reminder service. A derived future payment date is labelled and excluded from operational export until its source-contract notice check is complete.
-- `/workspace`: existing free authenticated preparation, owner-separated D1 saving, evidence checklist, review, preparation-pack export and app-record deletion. Calculator results are never silently added to a saved return.
+- `/workspace`: free authenticated preparation, owner-separated Supabase saving in production (D1 for local development), evidence checklist, review, preparation-pack export and app-record deletion. Calculator results are never silently added to a saved return.
 - `/pricing`: proposed reviewed-service model and a working route to free preparation. All current tools, preparation and exports remain free. R499/from-R999 are unvalidated service-price hypotheses; there is no checkout, booking, paid entitlement or staffed service claim.
 
 The surveyed 36-entry inventory and exact per-entry/submode status are recorded in [calculator-coverage-audit.md](docs/calculator-coverage-audit.md). Source contracts, independent fixtures and Astra stage decisions are in `docs/`. Final release evidence belongs in the verification/code-review records; the commands below do not imply live/browser acceptance has been completed.
@@ -17,9 +17,15 @@ The surveyed 36-entry inventory and exact per-entry/submode status are recorded 
 
 The free saved estimate remains a single-employer, adult-resident, full-year employment case. It requires reconciled pre-section-11F income including taxable employer retirement/medical benefits once; current eligible contributions without carryovers/transfers/withdrawals; and registered-scheme premiums with known monthly counts, E=0, no shared payer or disability/impairment, and established entitlement. Unknown or excluded facts suppress the overall result while preserving checklist progress. Standalone calculator components do not expand this saved-return scope.
 
-Durable D1 writes use server identity, owner/year scoping, atomic optimistic revisions and stable record IDs to reject stale replacements. Save failures retain unsaved answers. Account export is independent of unsaved current work. Deletion removes the current owner's all-year Joff preparation records, not ChatGPT identity or SARS records. No certificate files, SARS credentials, identity/tax/bank numbers or diagnoses are collected.
+Durable writes use server identity, owner/year scoping, atomic optimistic revisions and stable record IDs to reject stale replacements. Save failures retain unsaved answers. Account export is independent of unsaved current work. Deletion removes the current owner's all-year Joff preparation records, not ChatGPT identity or SARS records. No certificate files, SARS credentials, identity/tax/bank numbers or diagnoses are collected.
 
-`lib/calculators.ts` is the catalog/schema/evaluation boundary; `calculator-families.ts`, `calculator-personal.ts` and `calculator-specialists.ts` implement the reviewed families. `lib/rules.ts`, `model.ts` and `calculation.ts` retain preparation rules/screening. `repository.ts` contains owner-scoped D1 queries; `api.ts` and `app/api/` enforce guarded account/preparation/export operations. `app/calculators/` supplies the session UI and `app/pricing/` the proposed-service explanation. `app/chatgpt-auth.ts` remains platform-owned auth integration.
+`lib/calculators.ts` is the catalog/schema/evaluation boundary; `calculator-families.ts`, `calculator-personal.ts` and `calculator-specialists.ts` implement the reviewed families. `lib/rules.ts`, `model.ts` and `calculation.ts` retain preparation rules/screening. `repository.ts` selects the signed Supabase adapter or local owner-scoped D1 queries; `api.ts` and `app/api/` enforce guarded account/preparation/export operations. `app/calculators/` supplies the session UI and `app/pricing/` the proposed-service explanation. `app/chatgpt-auth.ts` remains platform-owned auth integration.
+
+## Supabase backend
+
+Production uses project `pfdshqbblrqjxupysghu`. Sites supplies the verified ChatGPT identity; the server signs short-lived requests to the `joff-preparations` Edge Function. Supabase Auth is not a second sign-in system. Database tables are private with RLS enabled, no browser-role grants and an owner-scoped service-only RPC. Neither database administration credentials nor signing secrets are sent to the browser.
+
+See [supabase-backend.md](docs/supabase-backend.md) for configuration, the controlled D1 migration, verification and rollback constraints. Supabase mode fails closed on backend errors and never falls back to old D1 records.
 
 ## Important calculation boundaries
 
@@ -39,7 +45,7 @@ Specialist assets/leases use actual declared full financial years and restricted
 
 ## Validation and launch gates
 
-Use fictional data during private validation. Local independent fixtures, strict schema checks and real SQLite/API ownership/revision tests establish implementation evidence. Mobile/desktop visuals, keyboard/focus, actual downloads/print, genuine hosted identity, deployed D1 persistence and two-real-owner isolation remain separately recorded as passed/failed/pending. Source inspection or mocked identities do not prove those live checks.
+Use fictional data during private validation. Local independent fixtures, strict schema checks, real SQLite/API tests and live Supabase ownership/revision tests establish implementation evidence. Browser evidence and genuine hosted identity remain separately recorded as passed/failed/pending. Signed fictional server subjects prove backend isolation, but do not prove sign-in through the hosted visitor interface.
 
 Before public/paid use: independent South African practitioner review, a real legal seller and contracted registered reviewers, scope/capacity/support/refund processes, privacy/security/operator/retention/incident readiness and payment reconciliation/refund tests are required. Actual SARS filing needs a separately authorised practitioner/integration workflow with customer consent and genuine receipts. No SARS affiliation, integration, practitioner status, infrastructure guarantee or POPIA certification is claimed by this repository.
 
@@ -47,7 +53,7 @@ See [commercial-delivery-blueprint.md](docs/commercial-delivery-blueprint.md) fo
 
 ## Development checks
 
-Latest integrated verification reported **79 tests passed, 0 failed**, with TypeScript passing, including all six specialist tools through the public evaluator. See `docs/verification-notes.md` for evidence and limitations. Run `npm test` for engines/fixtures/owner/API regressions, `npm run typecheck` for TypeScript, and the Sites skill's production build entrypoint for the exact deployable artifact. Source publication, deployment and final code review are separate gates. The runtime details below remain from the configured starter and explain auth, binding and local migration behaviour.
+The calculator completion pass on 7 October 2026 passed **185 tests with 0 failures** and TypeScript checking. Local browser verification passed all 36 examples, 93 additional mode/boundary cases and seven focused interaction/mobile checks. The repairs separate travel and wear-and-tear modes, clarify net-pay increases, correct mode-specific years and exports, and identify missing form answers. See [calculator-functional-verification.md](docs/calculator-functional-verification.md) for build/release evidence and scope. Earlier workspace checks remain recorded separately; genuine hosted sign-in, durable owner persistence and two-real-owner isolation are still pending. Run `npm test`, `npm run typecheck` and the Sites production build entrypoint for the current artifact.
 
 ## Vinext / Sites runtime
 
@@ -68,7 +74,7 @@ Run `node <plugin-root>/scripts/configure-execution-profile.mjs` only when the p
 
 This starter does not use `wrangler.jsonc`.
 
-This configured checkout pins pnpm 11.25.0. `install:ci` invokes the managed `scripts/install-pnpm.sh` helper with project-owned store/home and installation locks. Use the Sites dependency-install workflow for a new checkout; do not run overlapping installers or replace the established lockfile/package-manager configuration. The portable profile notes below describe the starter workflow and must be adapted through the Sites skill if using another environment.
+This configured checkout pins pnpm 11.25.0. `install:ci` uses a Node dispatcher: the portable branch runs on Windows without Bash, while the managed branch retains the existing `scripts/install-pnpm.sh` helper and its project-owned store/home and installation locks. The Sites dependency-install workflow successfully installed 639 packages from the frozen lockfile on Windows after network timeouts and cached retries. Use that workflow for a new checkout; do not run overlapping installers or replace the established lockfile/package-manager configuration.
 
 - **Portable:** Preserve host HOME, npm cache, registry, proxy, temporary paths, retry/concurrency settings, and lifecycle-script policy. Use `--prefer-offline --no-audit --no-fund`.
 - **Managed Linux:** Use the existing project-local HOME/cache/tmp setup and Linux install lock, tarball preflight, and timeout. Restore the image-seeded npm cache only when its lockfile hash matches; retain network fallback. Builds keep their existing timeout. These helpers are not invoked by the portable profile.
