@@ -1,5 +1,7 @@
 # Replacement-chat continuation status
 
+Latest continuation: the recovery changes below were published as owner-only v3 from Sites source `4b7bc9ea49d8377b66c7deec90df19029eb2bb83`. The owner then requested calculator completion. See [calculator-functional-verification.md](calculator-functional-verification.md) for the new mode/form fixes and fresh evidence; this earlier recovery snapshot remains useful context. Native release receipts and the GitHub review supersede the historical pending packaging item below. Genuine hosted preparation/owner acceptance remains pending.
+
 Snapshot: 7 October 2026, South Africa. This record restores the working context after the earlier chat was deleted. The owner requested Astra Extra High oversight and Sol 6.1 planning, research and coding. Continue the existing app and its approved boundaries; this is not a new product build.
 
 ## Recovered application and deployment

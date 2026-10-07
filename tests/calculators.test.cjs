@@ -88,7 +88,7 @@ test('travel verified cost-scale fixtures, gazetted126.9, allowance cap and matc
   travel.vehicleCost='900000';travel.businessKm='1000';close(item(evaluateCalculator('travel-allowance',2027,travel),'Illustrative allowance deduction'),15353.95);
   travel.allowance='1000';assert.equal(item(evaluateCalculator('travel-allowance',2027,travel),'Illustrative allowance deduction'),1000);
   travel.businessKm='20001';assert.equal(evaluateCalculator('travel-allowance',2027,travel).status,'invalid');
-  const actual=example('travel-allowance');actual.method='actual';assert.equal(evaluateCalculator('travel-allowance',2026,actual).status,'blocked');actual.actualCosts='120000';assert.equal(item(evaluateCalculator('travel-allowance',2026,actual),'Illustrative allowance deduction'),60000);
+  const actual=example('travel-allowance');actual.method='actual';assert.equal(evaluateCalculator('travel-allowance',2026,actual).status,'invalid');actual.actualCosts='120000';assert.equal(item(evaluateCalculator('travel-allowance',2026,actual),'Illustrative allowance deduction'),60000);
 });
 test('company-car determined-value maintenance and assessment ratio fixtures differ from withholding',()=>{
   const car=example('company-car-tax');let out=evaluateCalculator('company-car-tax',2026,car);close(item(out,'Monthly gross car benefit'),14000);close(item(out,'Annual gross car benefit'),168000);close(item(out,'Assessment benefit after verified business-use ratio'),126000);

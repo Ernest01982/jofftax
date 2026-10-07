@@ -26,7 +26,7 @@ try {
   const presentation = ts.transpileModule(presentationSource, {
     fileName: 'calculator-presentation.ts', compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS, esModuleInterop: true },
   });
-  writeFileSync(join(build, 'calculator-presentation.js'), presentation.outputText.replaceAll('../../lib/rules', './rules'));
+  writeFileSync(join(build, 'calculator-presentation.js'), presentation.outputText.replaceAll('../../lib/rules', './rules').replaceAll('../../lib/calculators', './calculators'));
   mkdirSync(join(build, 'routes'));
   for (const name of ['preparation', 'export', 'account']) {
     const source = readFileSync(join(root, 'app', 'api', name, 'route.ts'), 'utf8');

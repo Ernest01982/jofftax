@@ -1,8 +1,10 @@
 # Private validation verification
 
+Latest calculator pass: see [calculator-functional-verification.md](calculator-functional-verification.md) for the functional repairs, 185 passing tests, 129 local example/mode browser checks and seven focused interaction checks. The earlier replacement-chat evidence below is retained as history; its installation-only description and pending publication item describe the pre-v3 snapshot, not the subsequent calculator work. Native Sites history and the GitHub release receipt identify each published artifact.
+
 Current status: fresh local implementation and browser checks passed on 7 October 2026; genuine hosted visitor-session acceptance remains pending. All fixtures are fictional. No taxpayer data or live SARS services were used. Historical evidence below is retained separately.
 
-## Current replacement-chat verification — 7 October 2026
+## Earlier replacement-chat recovery verification — 7 October 2026
 
 Windows / Node 22.20 evidence, reported by the coordinating agent:
 

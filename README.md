@@ -47,7 +47,7 @@ See [commercial-delivery-blueprint.md](docs/commercial-delivery-blueprint.md) fo
 
 ## Development checks
 
-Fresh verification on 7 October 2026, Windows / Node 22.20, passed **83 tests with 0 failures**, TypeScript noEmit and the exact Sites production build. Browser checks passed 45 calculator/navigation cases and nine local workspace cases using fictional data and mock identity; nine read-only hosted HTTP checks passed without visitor identity. Genuine hosted sign-in/sign-out, durable owner persistence and two-real-owner isolation remain pending. See `docs/verification-notes.md` for evidence and limitations. Run `npm test`, `npm run typecheck` and the Sites production build entrypoint for the current artifact. Packaging and deployment of the current changes remain separate pending steps.
+The calculator completion pass on 7 October 2026 passed **185 tests with 0 failures** and TypeScript checking. Local browser verification passed all 36 examples, 93 additional mode/boundary cases and seven focused interaction/mobile checks. The repairs separate travel and wear-and-tear modes, clarify net-pay increases, correct mode-specific years and exports, and identify missing form answers. See [calculator-functional-verification.md](docs/calculator-functional-verification.md) for build/release evidence and scope. Earlier workspace checks remain recorded separately; genuine hosted sign-in, durable owner persistence and two-real-owner isolation are still pending. Run `npm test`, `npm run typecheck` and the Sites production build entrypoint for the current artifact.
 
 ## Vinext / Sites runtime
 

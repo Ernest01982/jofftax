@@ -1,20 +1,20 @@
 'use client';
 
-import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react';
+import { useId, useMemo, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import {
-  ArrowLeft, ArrowRight, ArrowUpRight, Bookmark, Calculator, CalendarDays,
-  Check, CheckCircle2, ChevronDown, CircleHelp, Coins, Copy, Download,
-  FileCheck2, FileText, FolderCheck, GitCompareArrows, Home, Leaf, Percent,
+  ArrowLeft, ArrowRight, ArrowUpRight, Calculator, CalendarDays,
+  Check, CheckCircle2, CircleHelp, Coins, Copy, Download,
+  FileCheck2, FileText, FolderCheck, GitCompareArrows, Home, Leaf,
   Printer, Search, ShieldCheck, SlidersHorizontal, Sparkles, Star, Trash2,
   TriangleAlert, TrendingUp, Wallet, X,
 } from 'lucide-react';
 import {
-  CALCULATORS, evaluateCalculator,
+  CALCULATORS, evaluateCalculator, calculatorContext, calculatorFields,
   type CalculatorDefinition, type CalculatorField, type CalculatorOutcome,
 } from '../../lib/calculators';
-import { RULES, period, type AssessmentYear } from '../../lib/rules';
-import { useCalculatorSession, type CalculatorScenario } from './calculator-context';
+import { period, type AssessmentYear } from '../../lib/rules';
+import { useCalculatorSession } from './calculator-context';
 import { calculatorPack, calculatorText, downloadFile, formatValue, printText, calendarText, displayInput, calculatorWidget, scenarioPeriod, activeCalculatorInputs, clearInactiveInputs } from './calculator-presentation';
 
 const KIND_LABELS: Record<string, string> = {
@@ -27,14 +27,14 @@ const KIND_LABELS: Record<string, string> = {
   guide: 'Official next-step guide',
 };
 
-function categoryIcon(category: string) {
+function CategoryIcon({ category }: { category: string }) {
   const text = category.toLowerCase();
-  if (/salary|pay/.test(text)) return Wallet;
-  if (/retire/.test(text)) return Coins;
-  if (/invest|asset/.test(text)) return TrendingUp;
-  if (/business|property/.test(text)) return Home;
-  if (/deadline|document|guide/.test(text)) return CalendarDays;
-  return SlidersHorizontal;
+  if (/salary|pay/.test(text)) return <Wallet size={22} />;
+  if (/retire/.test(text)) return <Coins size={22} />;
+  if (/invest|asset/.test(text)) return <TrendingUp size={22} />;
+  if (/business|property/.test(text)) return <Home size={22} />;
+  if (/deadline|document|guide/.test(text)) return <CalendarDays size={22} />;
+  return <SlidersHorizontal size={22} />;
 }
 
 function sourceDomain(url: string) {
@@ -175,12 +175,11 @@ export default function CalculatorExperience({ calculatorId }: { calculatorId?: 
 
 function CalculatorCard({ calculator }: { calculator: CalculatorDefinition }) {
   const session = useCalculatorSession();
-  const Icon = categoryIcon(calculator.category);
   const favorite = session.favorites.includes(calculator.id);
   const pending = calculator.contractAvailability !== 'live';
   return (
     <article className={`calculator-card ${pending ? 'pending' : ''}`}>
-      <div className="calculator-card-top"><span className="tool-icon"><Icon size={22} /></span><button className="favorite-button" aria-label={`${favorite ? 'Remove' : 'Add'} ${calculator.title} ${favorite ? 'from' : 'to'} favorites`} aria-pressed={favorite} onClick={() => session.toggleFavorite(calculator.id)}><Star size={18} fill={favorite ? 'currentColor' : 'none'} /></button></div>
+      <div className="calculator-card-top"><span className="tool-icon"><CategoryIcon category={calculator.category} /></span><button className="favorite-button" aria-label={`${favorite ? 'Remove' : 'Add'} ${calculator.title} ${favorite ? 'from' : 'to'} favorites`} aria-pressed={favorite} onClick={() => session.toggleFavorite(calculator.id)}><Star size={18} fill={favorite ? 'currentColor' : 'none'} /></button></div>
       <span className="tool-category">{calculator.category}</span>
       <h3><Link href={`/calculators/${calculator.id}`}>{calculator.title}</Link></h3>
       <p>{calculator.description}</p>
@@ -200,11 +199,13 @@ function CalculatorTool({ calculator, onCompare }: { calculator: CalculatorDefin
   const [scenarioName, setScenarioName] = useState('');
   const errorRef = useRef<HTMLDivElement>(null);
   const resultRef = useRef<HTMLDivElement>(null);
-  const outcome = snapshot?.signature === inputSignature && snapshot.year === session.year ? snapshot.outcome : null;
+  const context = calculatorContext(calculator, inputs);
+  const fields = calculatorFields(calculator, inputs);
+  const outcome = snapshot?.signature === inputSignature && (!context.yearSensitive || snapshot.year === session.year) ? snapshot.outcome : null;
   const activeExample = session.examples[calculator.id] || false;
-  const groups = [...new Set(calculator.fields.filter((field) => !field.visibleWhen || field.visibleWhen.values.includes(inputs[field.visibleWhen.field])).map((field) => field.section || 'Your scenario'))];
+  const groups = [...new Set(fields.filter((field) => !field.visibleWhen || field.visibleWhen.values.includes(inputs[field.visibleWhen.field])).map((field) => field.section || 'Your scenario'))];
   const pending = calculator.contractAvailability !== 'live';
-  const ordinaryPeriod = calculator.yearSensitive && (calculator.yearPolicy || 'ordinaryAssessment') === 'ordinaryAssessment';
+  const ordinaryPeriod = context.ordinaryPeriod;
   const favorite = session.favorites.includes(calculator.id);
   const preferredLabel: Record<string, string> = { 'income-tax':'Monthly take-home planning amount','tax-refund':'Possible overpayment','bonus-tax':'Incremental annual normal tax','tax-bracket':'Estimated annual normal tax','net-to-gross':'Recovered take-home in selected period','payroll-tax':'Total monthly employee take-home' };
   const primaryIndex = outcome ? Math.max(0, outcome.items.findIndex((item) => item.label === (outcome.primaryResultLabel ?? calculator.primaryResultLabel ?? preferredLabel[calculator.id]) || calculator.id === 'tax-refund' && item.label === 'Estimated amount still payable')) : 0;
@@ -244,7 +245,7 @@ function CalculatorTool({ calculator, onCompare }: { calculator: CalculatorDefin
     if (session.scenarios.length >= 3) { setExportError('This comparison has three scenarios. Remove one or clear it before adding another.'); onCompare(); return; }
     const first = session.scenarios[0];
     if (first && (first.calculatorId !== calculator.id || first.outcome.comparisonKey !== outcome.comparisonKey || first.outcome.resultKind !== outcome.resultKind || first.outcome.items.map((item) => `${item.label}:${item.format || 'text'}`).join('|') !== outcome.items.map((item) => `${item.label}:${item.format || 'text'}`).join('|'))) { setExportError('These results use a different tool, mode or output meaning. Clear the comparison before exploring this case.'); onCompare(); return; }
-    if (first && ordinaryPeriod && first.year !== session.year && !session.crossYear) { setExportError('Your comparison uses a different assessment year. Enable the explicit cross-year comparison option first.'); onCompare(); return; }
+    if (first && context.yearSensitive && first.year !== session.year && !session.crossYear) { setExportError('Your comparison uses a different rule or assessment year. Enable the explicit cross-year comparison option first.'); onCompare(); return; }
     session.setScenarios([...session.scenarios, {
       id: crypto.randomUUID(), title: scenarioName.trim() || `Scenario ${session.scenarios.length + 1}`,
       calculatorId: calculator.id, year: session.year, inputs: activeCalculatorInputs(calculator, inputs), outcome,
@@ -263,7 +264,7 @@ function CalculatorTool({ calculator, onCompare }: { calculator: CalculatorDefin
       if (!printText(calculator.title, text)) setExportError('Allow a new tab to open the printable scenario, or use the free text download.');
       return;
     }
-    downloadFile(format === 'json' ? JSON.stringify(pack, null, 2) : text, `joff-${calculator.id}-${session.year}.${format === 'json' ? 'json' : 'txt'}`, format === 'json' ? 'application/json;charset=utf-8' : undefined);
+    downloadFile(format === 'json' ? JSON.stringify(pack, null, 2) : text, `joff-${calculator.id}${context.yearSensitive ? `-${session.year}` : ''}.${format === 'json' ? 'json' : 'txt'}`, format === 'json' ? 'application/json;charset=utf-8' : undefined);
     setMessage('Your scenario and its sources were downloaded.');
   }
 
@@ -281,9 +282,9 @@ function CalculatorTool({ calculator, onCompare }: { calculator: CalculatorDefin
         <div><span className="eyebrow">{calculator.category.toUpperCase()} · FREE TOOL</span><h1>{calculator.title}</h1><p>{calculator.description}</p></div>
         <button className={`tool-favorite ${favorite ? 'selected' : ''}`} aria-pressed={favorite} onClick={() => session.toggleFavorite(calculator.id)}><Star size={17} fill={favorite ? 'currentColor' : 'none'} />{favorite ? 'Favorited' : 'Add favorite'}</button>
       </div>
-      <div className="calculator-scope-note"><CircleHelp size={20} /><p>{calculator.scopeSummary}</p><span>{KIND_LABELS[calculator.resultKind] || 'Scenario'}</span></div>
-      {calculator.yearSensitive && <div className="calculator-year-row"><label htmlFor="tool-assessment-year">{calculator.id === 'tax-deadlines' ? 'Published date context' : ordinaryPeriod ? 'Assessment year' : 'Year context'}<select id="tool-assessment-year" value={session.year} onChange={(event) => { session.setYear(Number(event.target.value) as AssessmentYear); setMessage(''); }}><option value={2026}>{calculator.id === 'tax-deadlines' ? '2026 ITR12 filing season' : ordinaryPeriod ? '2026 completed year' : '2026'}</option><option value={2027}>{calculator.id === 'tax-deadlines' ? '2027 provisional payment year' : ordinaryPeriod ? '2027 forecast' : '2027'}</option></select></label><div><strong>{calculator.id === 'tax-deadlines' ? session.year === 2026 ? '2026 return-filing dates' : '2027 provisional-payment dates' : ordinaryPeriod ? period(session.year) : `Selected year: ${session.year}`}</strong><span>{ordinaryPeriod ? session.year === 2027 ? 'Full-year projections using current SARS-published ordinary-income rates, subject to legislation and final assessment.' : 'Enter annual facts for the completed assessment year.' : calculator.id === 'tax-deadlines' ? 'ITR12 filing and IRP6 payment dates are different. No unpublished 2027 return-filing date is supplied.' : 'Use the tool’s published dates and specific transaction or calendar guidance.'}</span></div></div>}
-      {!calculator.yearSensitive && <p className="calculator-period-note">This tool uses its own entered dates, term or planning assumptions. An income assessment-year selector does not determine those rules.</p>}
+      <div className="calculator-scope-note"><CircleHelp size={20} /><p>{calculator.scopeSummary}</p><span>{KIND_LABELS[context.resultKind] || 'Scenario'}</span></div>
+      {context.yearSensitive && <div className="calculator-year-row"><label htmlFor="tool-assessment-year">{calculator.id === 'tax-deadlines' ? 'Published date context' : ordinaryPeriod ? 'Assessment year' : 'Year context'}<select id="tool-assessment-year" value={session.year} onChange={(event) => { session.setYear(Number(event.target.value) as AssessmentYear); setMessage(''); }}><option value={2026}>{calculator.id === 'tax-deadlines' ? '2026 ITR12 filing season' : ordinaryPeriod ? '2026 completed year' : '2026'}</option><option value={2027}>{calculator.id === 'tax-deadlines' ? '2027 provisional payment year' : ordinaryPeriod ? '2027 forecast' : '2027'}</option></select></label><div><strong>{calculator.id === 'tax-deadlines' ? session.year === 2026 ? '2026 return-filing dates' : '2027 provisional-payment dates' : ordinaryPeriod ? period(session.year) : `Selected year: ${session.year}`}</strong><span>{ordinaryPeriod ? session.year === 2027 ? 'Full-year projections using current SARS-published ordinary-income rates, subject to legislation and final assessment.' : 'Enter annual facts for the completed assessment year.' : calculator.id === 'tax-deadlines' ? 'ITR12 filing and IRP6 payment dates are different. No unpublished 2027 return-filing date is supplied.' : 'Use the tool’s published dates and specific transaction or calendar guidance.'}</span></div></div>}
+      {!context.yearSensitive && <p className="calculator-period-note">This tool uses its own entered dates, term or planning assumptions. An income assessment-year selector does not determine those rules.</p>}
       {activeExample && <div className="notice calc-example"><Sparkles size={19} /><span>Fictional example selected. You can edit it freely. It is not saved preparation data.</span><button onClick={reset}>Clear example<X size={15} /></button></div>}
       {message && <div className="notice success" role="status"><Check size={18} />{message}</div>}
       {exportError && <div className="notice error" role="alert"><TriangleAlert size={18} />{exportError}</div>}
@@ -293,9 +294,9 @@ function CalculatorTool({ calculator, onCompare }: { calculator: CalculatorDefin
         <div className="calculator-workbench">
           <form className="calculator-form" onSubmit={submit} noValidate>
             <div className="calculator-form-heading"><div><span className="eyebrow">1 · YOUR INPUTS</span><h2>Set up your scenario.</h2></div>{calculator.example && <button type="button" className="example-button" onClick={useExample}><Sparkles size={15} />Try an example</button>}</div>
-            {outcome?.status === 'invalid' && <div className="calculator-error-summary" ref={errorRef} tabIndex={-1} role="alert"><h3>Check the inputs before calculating.</h3><ul>{outcome.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}{Object.entries(outcome.fieldErrors || {}).map(([id, problem]) => <li key={id}><a href={`#${calculator.id}-${id}`}>{calculator.fields.find((field) => field.id === id)?.label || id}: {problem}</a></li>)}</ul></div>}
-            {groups.map((group) => <section className="calculator-field-group" key={group}><h3>{group}</h3><div className="calculator-fields">{calculator.fields.filter((field) => (field.section || 'Your scenario') === group && (!field.visibleWhen || field.visibleWhen.values.includes(inputs[field.visibleWhen.field]))).map((field) => <CalculatorInput key={field.id} controlId={`${calculator.id}-${field.id}`} field={field} value={inputs[field.id] || ''} onChange={(value) => updateInput(field.id, value)} error={outcome?.fieldErrors?.[field.id]} />)}</div></section>)}
-            <div className="calculator-submit-row"><button type="button" className="button ghost" onClick={reset}>Clear inputs</button><button className="button dark" type="submit">{calculator.resultKind === 'guide' ? 'Get my next step' : 'Calculate scenario'}<ArrowRight size={17} /></button></div>
+            {outcome?.status === 'invalid' && <div className="calculator-error-summary" ref={errorRef} tabIndex={-1} role="alert"><h3>Check the inputs before calculating.</h3><ul>{outcome.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}{Object.entries(outcome.fieldErrors || {}).map(([id, problem]) => <li key={id}><a href={`#${calculator.id}-${id}`}>{fields.find((field) => field.id === id)?.label || id}: {problem}</a></li>)}</ul></div>}
+            {groups.map((group) => <section className="calculator-field-group" key={group}><h3>{group}</h3><div className="calculator-fields">{fields.filter((field) => (field.section || 'Your scenario') === group && (!field.visibleWhen || field.visibleWhen.values.includes(inputs[field.visibleWhen.field]))).map((field) => <CalculatorInput key={field.id} controlId={`${calculator.id}-${field.id}`} field={field} value={inputs[field.id] || ''} onChange={(value) => updateInput(field.id, value)} error={outcome?.fieldErrors?.[field.id]} />)}</div></section>)}
+            <div className="calculator-submit-row"><button type="button" className="button ghost" onClick={reset}>Clear inputs</button><button className="button dark" type="submit">{context.resultKind === 'guide' ? 'Get my next step' : 'Calculate scenario'}<ArrowRight size={17} /></button></div>
             <p className="calculator-form-privacy"><ShieldCheck size={15} />No tax numbers, bank details, documents or diagnoses. Amounts are not sent to app storage.</p>
           </form>
           <aside className="calculator-output" ref={resultRef} tabIndex={-1} aria-label="Calculator result" aria-live="polite">
@@ -315,7 +316,7 @@ function CalculatorTool({ calculator, onCompare }: { calculator: CalculatorDefin
           </aside>
         </div>
       )}
-      {outcome && <section className="calculator-source-section"><div><span className="eyebrow">PRIMARY SOURCES YOU CAN INSPECT</span><h2>Follow the rules back to the source.</h2></div><div>{outcome.provenance.sources.map((source) => <a href={source.url} target="_blank" rel="noopener noreferrer" key={source.url}><span><strong>{source.title}</strong><small>{sourceDomain(source.url)}</small></span><ArrowUpRight size={18} /></a>)}</div></section>}
+      {outcome && outcome.provenance.sources.length > 0 && <section className="calculator-source-section"><div><span className="eyebrow">PRIMARY SOURCES YOU CAN INSPECT</span><h2>Follow the rules back to the source.</h2></div><div>{outcome.provenance.sources.map((source) => <a href={source.url} target="_blank" rel="noopener noreferrer" key={source.url}><span><strong>{source.title}</strong><small>{sourceDomain(source.url)}</small></span><ArrowUpRight size={18} /></a>)}</div></section>}
       <RelatedTools calculator={calculator} />
       <section className="calculator-next-step"><span className="round-icon"><FolderCheck size={26} /></span><div><span className="eyebrow">3 · TAKE A USEFUL NEXT STEP</span><h2>Keep the evidence beside the numbers.</h2><p>The saved preparation workspace helps you record your own facts, evidence statuses and scope gaps. Calculator scenarios are separate and never silently overwrite it.</p></div><a className="button dark" href="/workspace" target="_top">Open free preparation<ArrowUpRight size={17} /></a></section>
     </>
@@ -327,7 +328,7 @@ function CalculatorInput({ field, value, onChange, error, controlId }: { field: 
   const id = controlId || generatedId;
   const helpId = `${id}-help`;
   const options = field.options || [{ value: 'yes', label: 'Yes' }, { value: 'no', label: 'No' }, { value: 'unsure', label: 'I’m not sure' }];
-  if (calculatorWidget(field) === 'payrollRows') return <PayrollRows controlId={controlId} field={field} value={value} onChange={onChange} error={error} />;
+  if (calculatorWidget(field) === 'payrollRows') return <PayrollRows controlId={controlId} value={value} onChange={onChange} error={error} />;
   if (calculatorWidget(field) === 'medicalMonths') return <CoveredMonths controlId={controlId} value={value} onChange={onChange} error={error} />;
   if (field.type === 'choice') {
     return <fieldset id={id} tabIndex={-1} className={`calc-field calc-choice ${error ? 'invalid' : ''}`}><legend>{field.label}</legend>{field.help && <p id={helpId}>{field.help}</p>}<div className="calc-choice-options">{options.map((option) => <label key={option.value} className={value === option.value ? 'selected' : ''}><input type="radio" name={id} value={option.value} checked={value === option.value} onChange={() => onChange(option.value)} aria-describedby={field.help ? helpId : undefined} /><span className="choice-dot" />{option.label}</label>)}</div>{error && <span className="calc-field-error">{error}</span>}</fieldset>;
@@ -354,7 +355,8 @@ function ComparisonPanel({ onClose }: { onClose: () => void }) {
   const first = session.scenarios[0];
   const calculator = CALCULATORS.find((tool) => tool.id === first?.calculatorId);
   const labels = [...new Set(session.scenarios.flatMap((scenario) => scenario.outcome.items.map((item) => item.label)))];
-  const differingInputs = calculator?.fields.filter((field) => session.scenarios.some((scenario) => Object.prototype.hasOwnProperty.call(scenario.inputs, field.id)) && new Set(session.scenarios.map((scenario) => scenario.inputs[field.id])).size > 1) || [];
+  const comparisonContext = calculator && first ? calculatorContext(calculator, first.inputs) : null;
+  const differingInputs = (calculator && first ? calculatorFields(calculator, first.inputs) : []).filter((field) => session.scenarios.some((scenario) => Object.prototype.hasOwnProperty.call(scenario.inputs, field.id)) && new Set(session.scenarios.map((scenario) => scenario.inputs[field.id])).size > 1) || [];
 
   function comparisonText() {
     return ['Joff Tax tab-only scenario comparison', 'Scenarios from the same tool only. Components are not added into a return estimate.', `Created: ${new Date().toISOString()}`, `Cross-year comparison explicitly allowed: ${session.crossYear ? 'yes' : 'no'}`, '', ...session.scenarios.flatMap((scenario) => {
@@ -366,11 +368,11 @@ function ComparisonPanel({ onClose }: { onClose: () => void }) {
   return (
     <section className="calculator-comparison" aria-labelledby="comparison-title">
       <div className="comparison-heading"><div><span className="eyebrow">TAB-ONLY COMPARISON · UP TO THREE CASES</span><h2 id="comparison-title">See the difference clearly.</h2><p>Compare snapshots from the same tool. These are not a combined tax assessment.</p></div><button className="icon-button" aria-label="Close comparison panel" onClick={onClose}><X size={21} /></button></div>
-      {(!calculator || calculator.yearSensitive && (calculator.yearPolicy || 'ordinaryAssessment') === 'ordinaryAssessment') && <label className="cross-year-choice"><input type="checkbox" checked={session.crossYear} onChange={(event) => { if (!event.target.checked && new Set(session.scenarios.map((scenario) => scenario.year)).size > 1) { setMessage('Remove the different-year scenario before disabling cross-year comparison.'); return; } session.setCrossYear(event.target.checked); setMessage(''); }} />Allow an explicitly labelled comparison across assessment years</label>}
+      {(!calculator || comparisonContext?.yearSensitive) && <label className="cross-year-choice"><input type="checkbox" checked={session.crossYear} onChange={(event) => { if (!event.target.checked && new Set(session.scenarios.map((scenario) => scenario.year)).size > 1) { setMessage('Remove the different-year scenario before disabling cross-year comparison.'); return; } session.setCrossYear(event.target.checked); setMessage(''); }} />Allow an explicitly labelled comparison across {comparisonContext?.ordinaryPeriod ? 'assessment' : 'rule'} years</label>}
       {message && <p className="comparison-message" role="status">{message}</p>}
       {!first ? <div className="comparison-empty"><GitCompareArrows size={33} /><h3>A good comparison starts with one result.</h3><p>Calculate a supported scenario, name it if useful, then select “Add to comparison”. Change an input and calculate again to add another case.</p></div> : <>
         <div className="comparison-scroll"><table><caption>{calculator?.title} · compatible result snapshots</caption><thead><tr><th scope="col">What changes?</th>{session.scenarios.map((scenario) => <th scope="col" key={scenario.id}><strong>{scenario.title}</strong><span>{calculator ? scenarioPeriod(calculator, scenario.year, scenario.outcome) : scenario.outcome.provenance.period} · {KIND_LABELS[scenario.outcome.resultKind]}</span><button onClick={() => session.setScenarios(session.scenarios.filter((item) => item.id !== scenario.id))} aria-label={`Remove ${scenario.title} from comparison`}><Trash2 size={14} />Remove</button></th>)}</tr></thead><tbody>{differingInputs.map((field) => <tr className="comparison-difference" key={field.id}><th scope="row">{field.label}<span>Input difference</span></th>{session.scenarios.map((scenario) => <td key={scenario.id}>{displayInput(field, scenario.inputs[field.id] || '')}</td>)}</tr>)}{labels.map((label) => <tr key={label}><th scope="row">{label}</th>{session.scenarios.map((scenario) => { const item = scenario.outcome.items.find((result) => result.label === label); return <td key={scenario.id}>{item ? formatValue(item.value, item.format) : 'Not part of this case'}</td>; })}</tr>)}<tr><th scope="row">Rule provenance</th>{session.scenarios.map((scenario) => <td className="comparison-rule" key={scenario.id}>{scenario.outcome.provenance.version}<br />Checked {scenario.outcome.provenance.checked}</td>)}</tr></tbody></table></div>
-        <div className="comparison-actions"><button className="button dark" onClick={() => downloadFile(comparisonText(), 'joff-tax-scenario-comparison.txt')}><Download size={16} />Download comparison</button><button className="button ghost" onClick={() => downloadFile(JSON.stringify({ document: 'Joff Tax scenario comparison', createdAt: new Date().toISOString(), crossYearExplicitlyAllowed: session.crossYear, scenarios: session.scenarios }, null, 2), 'joff-tax-scenario-comparison.json', 'application/json;charset=utf-8')}>JSON<FileText size={16} /></button><button className="button ghost" onClick={() => { if (!printText('Joff Tax scenario comparison', comparisonText())) setMessage('Allow a new tab for print, or download the same comparison.'); }}><Printer size={16} />Print</button><button className="text-link" onClick={() => session.setScenarios([])}>Clear comparison<Trash2 size={15} /></button></div>
+        <div className="comparison-actions"><button className="button dark" onClick={() => downloadFile(comparisonText(), 'joff-tax-scenario-comparison.txt')}><Download size={16} />Download comparison</button><button className="button ghost" onClick={() => downloadFile(JSON.stringify({ document: 'Joff Tax scenario comparison', createdAt: new Date().toISOString(), crossYearExplicitlyAllowed: session.crossYear, scenarios: session.scenarios.map((scenario) => { const definition = CALCULATORS.find((tool) => tool.id === scenario.calculatorId)!; const pack = calculatorPack(definition, scenario.year, scenario.inputs, scenario.outcome, scenario.example); return { ...scenario, year: calculatorContext(definition, scenario.inputs).yearSensitive ? scenario.year : null, assessmentYear: pack.assessmentYear, ruleYear: pack.ruleYear, period: pack.period, inputLabels: pack.inputLabels, displayInputs: pack.displayInputs }; }) }, null, 2), 'joff-tax-scenario-comparison.json', 'application/json;charset=utf-8')}>JSON<FileText size={16} /></button><button className="button ghost" onClick={() => { if (!printText('Joff Tax scenario comparison', comparisonText())) setMessage('Allow a new tab for print, or download the same comparison.'); }}><Printer size={16} />Print</button><button className="text-link" onClick={() => session.setScenarios([])}>Clear comparison<Trash2 size={15} /></button></div>
         <p className="comparison-limit">Each snapshot keeps its input facts, scope assumptions and official sources in the export. Refreshing or leaving calculators clears this comparison. No scenario values enter a URL or saved preparation.</p>
       </>}
     </section>
@@ -393,7 +395,7 @@ function CoveredMonths({ value, onChange, error, controlId }: { value: string; o
   );
 }
 
-function PayrollRows({ field, value, onChange, error, controlId }: { field: CalculatorField; value: string; onChange: (value: string) => void; error?: string; controlId: string }) {
+function PayrollRows({ value, onChange, error, controlId }: { value: string; onChange: (value: string) => void; error?: string; controlId: string }) {
   type Employee = { monthly: string; age: string; uifEligible: string };
   const blank = (): Employee => ({ monthly: '', age: '', uifEligible: '' });
   let rows: Employee[] = [blank()];

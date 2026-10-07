@@ -29,7 +29,18 @@ export const FAMILY_DEFINITIONS: Def[] = [
     def('two-pot-calculator', 'Two-pot withdrawal', 'Retirement', 'incrementalTax', [m('withdrawal', 'Gross savings-component withdrawal'), q('savingsComponent', 'Is this specifically a known savings-component withdrawal, not a retirement or withdrawal-table lump sum?'), ...taxFields], { withdrawal: '30000', savingsComponent: 'yes', ...taxExample }, 'Annual normal-tax difference only. Amount after this component excludes fund fees, SARS debt and actual directive differences.'),
     def('property-transfer-cost', 'Property transfer duty', 'Business and property', 'componentTax', [date('acquired', 'Acquisition / contract date'), m('value', 'Established taxable property value'), q('standardTransaction', 'Is this a known non-VAT, non-exempt standard transaction with an established taxable value?')], { acquired: '2026-10-07', value: '2000000', standardTransaction: 'yes' }, 'Transfer duty component only under the published acquisition table from 1 April 2025. Legal, bond and municipal fees are separate.', 'transaction'),
     def('small-business-income-tax', 'Small-business income tax', 'Business and property', 'componentTax', [date('yearEnd', 'Company financial-year end'), m('profit', 'Known annual taxable profit'), q('normalYear', 'Is this an ordinary 12-month company financial year?', 'Short or extended assessment years require a separately reviewed threshold treatment.'), q('sbcEligible', 'Is qualifying section 12E SBC status established for this financial year?', 'This requires eligible entity/natural-person shareholders, gross income no more than R20m, shareholding, investment-income and personal-service tests; size alone is insufficient.')], { yearEnd: '2027-02-28', profit: '500000', normalYear: 'yes', sbcEligible: 'yes' }, 'SBC normal tax only, conditional on established eligibility. No automatic election of the lowest business tax regime.', 'financialYear'),
-    def('travel-allowance', 'Travel deduction', 'Deductions and benefits', 'deduction', [m('vehicleCost', 'Original vehicle acquisition cost including VAT, excluding finance charges'), m('allowance', 'Fixed travel allowance for this matching period'), { ...n('days', 'Days in the period the vehicle was used for business', 1, 365), help: 'Calendar duration of the business-use period, not the number of days you drove for business. Total kilometres still cover all private and business distance in the assessment-year / actual vehicle-use period.' }, n('totalKm', 'All private and business kilometres during the full vehicle-use period', .01, 1000000, .01), n('businessKm', 'Logged business kilometres excluding commuting', 0, 1000000, .01), q('fuelBorne', 'Did you bear all fuel costs?'), q('maintenanceBorne', 'Did you bear all maintenance costs?'), q('records', 'One personally owned vehicle, matching allowance/distance period and valid logbook?'), s('method', 'Cost method', [['deemed', 'Gazetted deemed-cost scale'], ['actual', 'Independently established actual qualifying costs']]), { ...m('actualCosts', 'Independently established actual qualifying total costs for the same period'), required: false }], { vehicleCost: '300000', allowance: '100000', days: '365', totalKm: '20000', businessKm: '10000', fuelBorne: 'yes', maintenanceBorne: 'yes', records: 'yes', method: 'deemed', actualCosts: '' }, 'Fixed-allowance deduction illustration; cost-scale or verified actual-cost allocation, capped at allowance. Reimbursive payments are separate.'),
+    def('travel-allowance', 'Travel deduction', 'Deductions and benefits', 'deduction', [
+        s('method', 'Cost method', [['deemed', 'Gazetted deemed-cost scale'], ['actual', 'Independently established actual qualifying costs']]),
+        m('allowance', 'Fixed travel allowance for this matching period'),
+        n('totalKm', 'All private and business kilometres during the full vehicle-use period', .01, 1000000, .01),
+        n('businessKm', 'Logged business kilometres excluding commuting', 0, 1000000, .01),
+        { ...m('vehicleCost', 'Original vehicle acquisition cost including VAT, excluding finance charges'), visibleWhen: { field: 'method', values: ['deemed'] } },
+        { ...n('days', 'Days in the period the vehicle was used for business', 1, 365), help: 'Calendar duration of the business-use period, not the number of days you drove for business. Total kilometres still cover all private and business distance in the assessment-year / actual vehicle-use period.', visibleWhen: { field: 'method', values: ['deemed'] } },
+        { ...q('fuelBorne', 'Did you bear all fuel costs?'), visibleWhen: { field: 'method', values: ['deemed'] } },
+        { ...q('maintenanceBorne', 'Did you bear all maintenance costs?'), visibleWhen: { field: 'method', values: ['deemed'] } },
+        { ...m('actualCosts', 'Independently established actual qualifying total costs for the same period', 'Use substantiated qualifying costs after applicable statutory limits, before allocating business kilometres. Do not enter the vehicle purchase price or costs already apportioned to business use.'), visibleWhen: { field: 'method', values: ['actual'] } },
+        q('records', 'One personally owned vehicle, matching allowance/distance period and valid logbook?'),
+    ], { vehicleCost: '300000', allowance: '100000', days: '365', totalKm: '20000', businessKm: '10000', fuelBorne: 'yes', maintenanceBorne: 'yes', records: 'yes', method: 'deemed', actualCosts: '' }, 'Fixed-allowance deduction illustration; cost-scale or verified actual-cost allocation, capped at allowance. Reimbursive payments are separate.'),
     def('company-car-tax', 'Company car tax', 'Deductions and benefits', 'incrementalTax', [m('value', 'Already correctly determined employer-owned vehicle value'), n('months', 'Full-month equivalents of use', 1, 12), q('plan', 'Was a qualifying maintenance plan included at acquisition?'), n('totalKm', 'Total recorded private and business kilometres', .01, 1000000, .01), n('businessKm', 'Verified business kilometres excluding commute', 0, 1000000, .01), q('carScope', 'Confirmed determined value, non-operating-lease car, logbook and no employee payments/cost adjustments, exemptions or multiple-car complication?'), ...taxFields], { value: '400000', months: '12', plan: 'no', totalKm: '20000', businessKm: '5000', carScope: 'yes', ...taxExample }, 'Assessment fringe benefit and separate annual-tax increment. Not the PAYE 80%/20% inclusion or guaranteed withholding.'),
     def('payroll-tax', 'Payroll tax', 'Salary and pay', 'componentTax', [{ id: 'employees', label: 'Employee planning rows', type: 'textarea', help: 'Add up to 20 anonymised monthly-pay, year-end age and UIF eligibility rows. Do not enter names, identity numbers or other personal data.' }, q('payrollScope', 'Are all rows adult residents with twelve equal ordinary salary months and no unmodelled benefits, directives or deductions?'), s('sdl', 'Employer SDL status', [['liable', 'Known liable'], ['exempt', 'Known exempt'], ['unsure', 'Not sure']]), m('leviable', 'Confirmed monthly SDL-leviable remuneration across this payroll'), m('expectedAnnual', 'Expected total SDL-leviable remuneration over the next 12 months'), q('sdlBaseKnown', 'Is the SDL-liable base established after required exclusions?'), q('otherSdlExemption', 'Does a separately established statutory SDL exemption apply?')], { employees: '[{"monthly":"30000","age":"under65","uifEligible":"yes"}]', payrollScope: 'yes', sdl: 'exempt', leviable: '30000', expectedAnnual: '360000', sdlBaseKnown: 'yes', otherSdlExemption: 'no' }, 'A set of equal-month employee planning components with separate employer UIF and confirmed SDL; not a production payroll engine.'),
     def('medical-aid-credits', 'Medical aid credits', 'Deductions and benefits', 'componentTax', [m('income', 'Known annual taxable income after any established section 11F deduction'), m('fees', 'Eligible annual medical scheme fees counted once'), { id: 'months', label: 'Eligible covered people for each month, March–February', type: 'text', help: 'Enter the eligible covered-person count for every month; zero for a month without eligible contributions. No dependant names or medical details.' }, age, resident, q('registered', 'Registered South African medical scheme?'), q('solePayer', 'Only you and your employer paid these fees, with no shared-credit arrangement?'), q('reconciled', 'Income and fees include employer taxable benefits once and all entitlement is established?'), q('noExpenses', 'No qualifying out-of-pocket or impairment expenses paid and borne by you?'), q('disability', 'Could a qualifying disability or impairment apply to you or any relevant dependant?'), q('knownMonths', 'All eligible paid/projected months are known, with no refund or entitlement uncertainty?')], { income: '540000', fees: '36000', months: '1,1,1,1,1,1,1,1,1,1,1,1', age: '65to74', resident: 'yes', registered: 'yes', solePayer: 'yes', reconciled: 'yes', noExpenses: 'yes', disability: 'no', knownMonths: 'yes' }, 'Approved E=0, no disability, no shared payer scheme-credit case only. Credits are non-refundable; unelapsed 2027 months are full-year projections.'),
@@ -58,7 +69,6 @@ function table(value: number, type: 'retirement' | 'withdrawal') { if (type === 
     return (value - 550000) * .18; if (value <= 1155000)
     return 39600 + (value - 770000) * .27; return 143550 + (value - 1155000) * .36; }
 const money = (label: string, value: number): Item => ({ label, value, format: 'currency' });
-const numeric = (label: string, value: number): Item => ({ label, value, format: 'number' });
 const text = (label: string, value: string): Item => ({ label, value, format: 'text' });
 const round = (x: number) => Math.round((x + Number.EPSILON) * 100) / 100;
 function normal(y: AssessmentYear, a: Inputs, v: number) { return salaryTax(y, v, a.age as Exclude<AgeBand, ''>, 0).liability; }
@@ -72,7 +82,7 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
     const known = (key: string) => { if (a[key] === 'unsure')
         out.blockers.push(`Clarify ${def.fields.find(f => f.id === key)?.label}.`); };
     const invalid = (message: string): Outcome => ({ ...out, status: 'invalid', items: [], blockers: [message] });
-    const use = (...names: (keyof typeof sources)[]) => { out.provenance.sources = names.map(k => sources[k]); };
+    const setSources = (...names: (keyof typeof sources)[]) => { out.provenance.sources = names.map(k => sources[k]); };
     if (def.fields.some(f => f.id === 'resident'))
         need('resident');
     if (def.fields.some(f => f.id === 'simple'))
@@ -81,7 +91,7 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
         out.assumptions.push('2027 full-year forecast using current SARS-published rates, subject to legislation and final assessment where proposed ordinary-income rates or limits apply.');
     if (id === 'local-interest') {
         need('localOnly');
-        use('interest', 'rates');
+        setSources('interest', 'rates');
         const exemption = a.age === 'under65' ? 23800 : 34500, taxable = Math.max(0, n('interest') - exemption);
         if (n('income') + taxable > 100000000)
             return invalid('Combined annual taxable income exceeds the scenario limit.');
@@ -91,13 +101,13 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
         out.provenance.version = 'za-foreign-dividend-component-20261007-v1';
         out.provenance.period = 'Resident-natural-person partial exemption checked 7 October 2026';
         need('partialExemption');
-        use('interest');
+        setSources('interest');
         out.items = [money('Exempt foreign-dividend component', n('dividend') * 25 / 45), money('Taxable foreign-dividend component', n('dividend') * 20 / 45)];
         out.assumptions.push('No foreign withholding, treaty relief or section 6quat credit is calculated. Taxable component is not final tax.');
     }
     if (id === 'rental-income-tax') {
         need('costsKnown');
-        use('rental', 'rates');
+        setSources('rental', 'rates');
         const profit = n('rent') - n('expenses');
         out.items = [money('Rental profit / loss component', profit)];
         if (profit < 0) {
@@ -118,7 +128,7 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
         }
         need('historyKnown');
         need('taxableKnown');
-        use('lump');
+        setSources('lump');
         const prior = n('priorRetirement') + n('priorWithdrawals') + n('priorSeverance'), current = n(id === 'retrenchment-tax' ? 'severance' : 'amount');
         if (prior + current > 100000000)
             return invalid('Cumulative taxable benefits exceed the scenario limit.');
@@ -132,13 +142,13 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
                 return invalid('Ordinary annual income exceeds the scenario limit.');
             const increment = round(normal(year, a, n('income') + n('ordinary')) - normal(year, a, n('income')));
             out.items.push(money('Ordinary leave / notice / salary / bonus portion', n('ordinary')), money('Separate ordinary-income tax increment', increment), money('Package after these two tax components', current + n('ordinary') - tax - increment));
-            use('lump', 'rates');
+            setSources('lump', 'rates');
         }
         out.assumptions.push('Complete prior retirement since October 2007, withdrawal since March 2009 and severance since March 2011 history, before table zero bands. Actual directives govern withholding.');
     }
     if (id === 'two-pot-calculator') {
         need('savingsComponent');
-        use('twoPot', 'rates');
+        setSources('twoPot', 'rates');
         if (n('income') + n('withdrawal') > 100000000)
             return invalid('Combined annual income exceeds the scenario limit.');
         const tax = round(normal(year, a, n('income') + n('withdrawal')) - normal(year, a, n('income')));
@@ -147,7 +157,7 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
     }
     if (id === 'property-transfer-cost') {
         need('standardTransaction');
-        use('transfer');
+        setSources('transfer');
         out.provenance.period = `Acquisition ${a.acquired}; published table effective 1 April 2025`;
         out.provenance.version = 'za-transfer-duty-20250401-v1';
         if (a.acquired < '2025-04-01')
@@ -161,7 +171,7 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
     if (id === 'small-business-income-tax') {
         need('sbcEligible');
         need('normalYear');
-        use('sbc');
+        setSources('sbc');
         out.provenance.period = `Company financial year ending ${a.yearEnd}`;
         out.provenance.version = `za-sbc-financial-${a.yearEnd >= '2026-04-01' ? '20260401-20270331' : '20250401-20260331'}-v1`;
         let newer = false;
@@ -177,26 +187,37 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
     }
     if (id === 'travel-allowance') {
         need('records');
-        known('fuelBorne');
-        known('maintenanceBorne');
-        out.provenance.sources = [{ title: 'SARS gazetted vehicle cost-scale notice', url: year === 2026 ? 'https://www.sars.gov.za/wp-content/uploads/Legal/SecLegis/Legal-LSec-IT-GN-2025-03-Notice-5936-GG-52199-Budget-2025-Rates-per-Kilometre-28-February-2025.pdf' : 'https://www.sars.gov.za/wp-content/uploads/IncomeTaxNotices/Legal-LSec-IT-GN-2026-03-Budget-2026-Rate-per-kilometre-iro-motor-vehicles-27-February-2026.pdf' }];
+        out.comparisonKey = `${def.comparisonKey}:${a.method}`;
+        out.provenance.version = `za-${id}-${a.method}-${year}-v2`;
+        out.provenance.period = `${RULES[year].start} to ${RULES[year].end}; matching vehicle-use and allowance period`;
+        out.provenance.sources = [{ title: 'SARS travel logbook and actual-cost / cost-scale methods', url: 'https://www.sars.gov.za/types-of-tax/personal-income-tax/travel-e-log-book/' }];
         if (n('businessKm') > n('totalKm'))
             return invalid('Business distance cannot exceed all private and business distance.');
-        const row = travelTables[year].find(r => n('vehicleCost') <= r[0])!, fixed = row[1] * n('days') / 365, costPerKm = fixed / n('totalKm') + (a.fuelBorne === 'yes' ? row[2] / 100 : 0) + (a.maintenanceBorne === 'yes' ? row[3] / 100 : 0);
-        let cost = n('businessKm') * costPerKm;
+        let cost: number;
         if (a.method === 'actual') {
-            if (a.actualCosts === undefined || a.actualCosts === '')
-                out.blockers.push('Enter independently established qualifying actual total costs; unknown is not zero.');
-            else
-                cost = n('actualCosts') * n('businessKm') / n('totalKm');
+            cost = n('actualCosts') * n('businessKm') / n('totalKm');
+            out.items = [money('Established qualifying actual costs', n('actualCosts')), { label: 'Business-use share', value: n('businessKm') / n('totalKm') * 100, format: 'percent' }];
+            out.steps!.push('Allocate the established qualifying actual costs by logged business kilometres divided by all kilometres for the same period.');
+            out.assumptions.push('Actual costs are substantiated and independently established after applicable statutory restrictions, before business-use apportionment. This tool does not determine which individual expenses qualify or apply a deemed cost-scale component.');
+        } else {
+            known('fuelBorne');
+            known('maintenanceBorne');
+            out.provenance.sources.push({ title: 'SARS gazetted vehicle cost-scale notice', url: year === 2026 ? 'https://www.sars.gov.za/wp-content/uploads/Legal/SecLegis/Legal-LSec-IT-GN-2025-03-Notice-5936-GG-52199-Budget-2025-Rates-per-Kilometre-28-February-2025.pdf' : 'https://www.sars.gov.za/wp-content/uploads/IncomeTaxNotices/Legal-LSec-IT-GN-2026-03-Budget-2026-Rate-per-kilometre-iro-motor-vehicles-27-February-2026.pdf' });
+            const row = travelTables[year].find(r => n('vehicleCost') <= r[0])!, fixed = row[1] * n('days') / 365, costPerKm = fixed / n('totalKm') + (a.fuelBorne === 'yes' ? row[2] / 100 : 0) + (a.maintenanceBorne === 'yes' ? row[3] / 100 : 0);
+            cost = n('businessKm') * costPerKm;
+            out.items = [money('Prorated fixed component', fixed), money('Deemed cost per kilometre', costPerKm)];
+            out.steps!.push('Prorate the gazetted fixed cost by the business-use period, divide it by all kilometres, then add the eligible fuel and maintenance rates and multiply by business kilometres.');
+            out.assumptions.push('Fixed cost is prorated days/365; fuel and maintenance components apply only when borne in full.');
+            if (year === 2027) out.assumptions.push('2027 high-band maintenance uses gazetted 126.9c, not the conflicting guide 126.1c.');
         }
-        out.items = [money('Prorated fixed component', fixed), money('Deemed cost per kilometre', costPerKm), money('Business cost allocation before allowance cap', cost), money('Illustrative allowance deduction', Math.min(n('allowance'), cost))];
-        out.assumptions.push('Total kilometres include private and business travel over the whole matching vehicle-use period. Business excludes commuting. Fixed cost prorated days/365; fuel/maintenance only when borne in full. No claim that one method is legally optimal.', '2027 high-band maintenance uses gazetted 126.9c, not the conflicting guide 126.1c.');
+        out.items.push(money('Business cost allocation before allowance cap', cost), money('Illustrative allowance deduction', Math.min(n('allowance'), cost)));
+        out.steps!.push('Limit the allocated business cost to the fixed travel allowance for that period.');
+        out.assumptions.push('Total kilometres include private and business travel over the whole matching vehicle-use period. Business excludes commuting. No claim that one method is legally optimal.');
     }
     if (id === 'company-car-tax') {
         need('carScope');
         known('plan');
-        use('car', 'rates');
+        setSources('car', 'rates');
         if (n('businessKm') > n('totalKm'))
             return invalid('Business kilometres cannot exceed total recorded kilometres.');
         const monthly = n('value') * (a.plan === 'yes' ? .0325 : .035), gross = monthly * n('months'), benefit = gross * (1 - n('businessKm') / n('totalKm'));
@@ -209,7 +230,7 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
         need('payrollScope');
         need('sdlBaseKnown');
         known('otherSdlExemption');
-        use('rates', 'uif', 'sdl');
+        setSources('rates', 'uif', 'sdl');
         if (a.sdl === 'unsure')
             out.blockers.push('Establish SDL liability or exemption.');
         if (a.sdl === 'liable' && a.otherSdlExemption === 'yes')
@@ -251,7 +272,7 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
         for (const k of ['registered', 'solePayer', 'reconciled', 'noExpenses', 'knownMonths'])
             need(k);
         need('disability', 'no');
-        use('medical', 'rates');
+        setSources('medical', 'rates');
         if (!/^\d+(,\d+){11}$/.test(a.months))
             return invalid('Complete all twelve monthly covered-person counts.');
         const counts = a.months.split(',').map(Number);
@@ -268,7 +289,7 @@ export function evaluateFamily(def: Def, year: AssessmentYear, a: Inputs): Outco
         need('currentOnly');
         need('carryovers', 'no');
         need('withdrawals', 'no');
-        use('retirement', 'rates');
+        setSources('retirement', 'rates');
         const r = salaryTax(year, n('income'), a.age as Exclude<AgeBand, ''>, 0, n('contributions')), before = normal(year, a, n('income'));
         out.items = [money('Pre-section-11F employment income', n('income')), money('Eligible current-year contributions', n('contributions')), money('Allowed deduction', r.retirementDeduction), money('Contribution not deducted in this estimate', r.retirementNotDeducted), money('Taxable income after deduction', r.taxableIncome), money('Annual normal tax before contribution', before), money('Annual normal tax after contribution', r.liability), money('Estimated contribution tax saving', round(before - r.liability))];
         out.assumptions.push('Pre-deduction income equals remuneration and taxable income in this bounded case. Excess is not deducted here; no future carry-forward entitlement is determined.');
