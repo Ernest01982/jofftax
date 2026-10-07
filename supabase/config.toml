@@ -1,0 +1,5 @@
+project_id = "pfdshqbblrqjxupysghu"
+
+[functions.joff-preparations]
+verify_jwt = false
+# handler.ts implements strict, body-bound ES256 authentication for the Sites server.
