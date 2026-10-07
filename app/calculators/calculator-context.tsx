@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { Fragment, createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { flushSync } from 'react-dom';
 import type { CalculatorOutcome } from '../../lib/calculators';
 import type { AssessmentYear } from '../../lib/rules';
 
@@ -40,6 +41,31 @@ export function CalculatorSessionProvider({ children }: { children: ReactNode })
   const [favorites, setFavorites] = useState<string[]>([]);
   const [scenarios, setScenarios] = useState<CalculatorScenario[]>([]);
   const [crossYear, setCrossYear] = useState(false);
+  const [sessionEpoch, setSessionEpoch] = useState(0);
+
+  useEffect(() => {
+    function clearFinancialSession() {
+      // Commit before the browser freezes this document in its back/forward cache.
+      flushSync(() => {
+        setYear(2026);
+        setDrafts({});
+        setExamples({});
+        setScenarios([]);
+        setCrossYear(false);
+        // Tool-local result snapshots, names and messages must also be discarded.
+        setSessionEpoch((previous) => previous + 1);
+      });
+    }
+    function onRestore(event: PageTransitionEvent) {
+      if (event.persisted) clearFinancialSession();
+    }
+    window.addEventListener('pagehide', clearFinancialSession);
+    window.addEventListener('pageshow', onRestore);
+    return () => {
+      window.removeEventListener('pagehide', clearFinancialSession);
+      window.removeEventListener('pageshow', onRestore);
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -72,7 +98,7 @@ export function CalculatorSessionProvider({ children }: { children: ReactNode })
       setExample: (id, example) => setExamples((previous) => ({ ...previous, [id]: example })),
       favorites, toggleFavorite, scenarios, setScenarios, crossYear, setCrossYear,
     }}>
-      {children}
+      <Fragment key={sessionEpoch}>{children}</Fragment>
     </CalculatorContext.Provider>
   );
 }

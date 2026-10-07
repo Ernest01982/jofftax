@@ -1,0 +1,90 @@
+JOFF TAX — WHOLE-APPLICATION FUNCTIONAL REVIEW
+7 October 2026, Africa/Johannesburg
+Lead reviewer: Astra Extra High. Implementation/browser support: Sol 6.1 and coordinator.
+
+DECISION AT SOURCE FREEZE
+
+APPROVED to package and publish the reviewed fixes to the existing owner-only private site. Three confirmed defects were corrected and their local regressions passed. The browser-back defect was reproduced independently on the actual v4 hosted application; its genuine hosted regression MUST pass on the replacement deployment before that finding is closed. This source-freeze record does not pretend that publication or that final check has already occurred. The final hosted review receipt will be saved separately as outputs/joff-tax-review.txt in the continuation workspace.
+
+This was a whole-application functional/correctness review, not merely approval of the preceding calculator patch. No critical or high-severity functional failure was established in the exercised scope. It is not a declaration that every possible tax circumstance, browser, identity integration or professional/legal obligation has been certified.
+
+SOURCE AND REVIEW BOUNDARY
+
+Starting commit: 0c4916befaa96f4e801159c2a6812c0580e3f90b, published as owner-only v4 at https://joff-tax.ernestreyneke.chatgpt.site.
+
+The final runtime diff consists of app/workspace-client.tsx, app/calculators/calculator-context.tsx and app/globals.css. No calculator formula, eligibility boundary, authentication protocol, repository query, migration, dependency version, audience or paid-service behavior changed in this review pass.
+
+SHA-256 of reviewed working-file bytes before packaging:
+app/workspace-client.tsx
+3242254F60D652C1071B07F16452244DA106FE5F90DD9F186ABE62DE7AD6B6BC
+app/calculators/calculator-context.tsx
+9E8BAED4BD8A67EC1E9CC2E9150F5AF6E926DDE5837BC1B5A04E3B33D64164B4
+app/globals.css
+2C1B8E8CCD3701C47ECF7F7EC9B760D3C2FDC4076B27C78440AA6A31DFFB05EE
+Git may normalize line endings when committing; these identify inspected local bytes, not an invented future commit.
+
+The lead reviewer inspected all application-owned pages and API routes, workspace state/save/reload/export/delete logic, identity return-path handling, schemas and evidence generation, actual owner/year/revision repository predicates, saved preparation calculations/exports, all calculator engine families, scenario presentation/storage/comparison logic, and relevant tests. Framework/connector internals were not represented as a separately audited product. This was ordinary access/correctness review, not a specialized repository-wide security scan.
+
+CONFIRMED FINDINGS AND FIXES
+
+F1 — P2, browser Back restored calculator amounts after leaving.
+With Chromium's Playwright BFCache-disabling default removed, the reviewer entered fictional salary 51829.47 and a comparison, navigated to /sample as a full document, and pressed Back on hosted v4. pageshow.persisted was true; the original page marker, salary and Compare1 were restored. This directly contradicted the promise that leaving calculators clears their amounts. The provider now synchronously resets transient state on pagehide, resets again on a persisted pageshow, and changes a keyed child fragment so local result snapshots, names and messages also unmount. Favorites remain. The reviewer inspected the patch and independently verified all three local lifecycle paths, including non-persisted pageshow preserving an active session. Actual hosted retest is pending publication.
+
+F2 — P2, deletion dismissal reused a prior confirmation and lost focus.
+Escape/Cancel/X could leave DELETE MY PREPARATIONS populated on reopening, enabling deletion without fresh entry. Closing now clears the phrase, closes the native dialog and restores focus to its trigger after deletion/inert state finishes. Opening also starts blank. A failed deletion retains the phrase and dialog for retry. Sol's actual local success/retry probe passed; the reviewer independently verified Escape, Cancel, X, injected DELETE503, subsequent cancellation and 390px layout without mutating saved records.
+
+F3 — P2, narrow result rows split a currency amount.
+At 320px, the final cent digit of R360000,00 wrapped onto a separate line. Result rows now stack their labels and values at narrow widths. The coordinator checked actual text-line geometry and page overflow for normal and near-maximum salary values at 320, 390, 420, 768 and 1440px: all ten cases passed. The reviewer inspected the original failure and corrected narrow screenshots. Guide text remains allowed to wrap.
+
+PASS / FAIL / NOT-VERIFIABLE MATRIX
+
+PASS means the described bounded behavior was observed or tested; it does not turn a local/mock check into hosted identity evidence.
+
+Area | Result | Evidence and limitation
+Landing and pricing | PASS | Fresh real-browser CTA/anchor traversal; free actions lead to functioning destinations. Proposed paid prices remain explicitly unavailable to purchase/book; no invented checkout or staffed review.
+Calculator hub | PASS | Categories, combined search, no-results reset, favorites/reload, actual links and browser navigation. Unknown tool and unknown page produce genuine 404s.
+36 calculator/guide entries | PASS within declared scope | All families inspected; earlier exact-source 185 tests and 129 browser cases retained as baseline. New independent active-field/malformed-input and mode-boundary sweep supplements them. Unsupported circumstances still block rather than produce an overall assessment.
+Tax arithmetic | PASS for tested models | Independently integrated SARS bracket widths, all ages/years, threshold-adjacent values and 1,000 deterministic amounts per age/year. Liability monotonicity, medical E=0 workspace/standalone parity, non-refundable caps, net-to-gross inverse thresholds and financial-schedule conservation passed.
+Mode inputs and widgets | PASS | Recent mode tests plus fresh payroll 1–20 row controls, sample medical month-fill/individual months and retirement fields. Inactive inputs do not enter active exports; blank, zero and uncertainty remain distinct.
+Scenario freshness | PASS | Reviewer changed monetary facts and observed stale outputs/export controls disappear until recalculation; downloaded JSON matched the current facts.
+Scenario comparisons | PASS | Reviewer independently exercised exact named snapshots, differences, text/JSON exports, full assumptions/sources, print text, three-case cap, remove/clear, compatible modes, rejected cross-tool addition, explicit cross-year choice and refusal to conceal already mixed years.
+Copy/print failure paths | PASS | Reviewer deliberately denied clipboard and popup opening; useful text-download fallback remained and answers were retained. Actual comparison print popup preserved complete content as inert text.
+Calculator persistence/privacy | PASS locally; F1 hosted retest PENDING | Internal route changes preserve calculator session; leaving/reloading clears it; only favorite slugs persist. Reviewer observed no preparation API calls or financial values in URL/localStorage/sessionStorage. Genuine hosted BFCache exposed F1 and requires its own regression.
+Deadline/document/refund guides | PASS within bounded guide role | Rendered sources and actual selected ICS export checked. Published contexts and unknown-safe branches have fixtures; unconfirmed derived 26 February 2027 date is excluded from confirmed calendar events. No live SARS lookup, active reminder or refund promise.
+Sample workspace | PASS | All sections/steps, both years, editable extensions, unsupported facts, evidence changes, labeled text/JSON/print and disabled account actions; no saving API writes.
+Workspace forms and navigation | PASS locally | Overview links, three preparation steps, both years, year-change cancel/discard, extension controls, progress/evidence readiness and scope blockers exercised with fictional local identity.
+Workspace loading/saving | PASS locally | Initial503 and retry, failed PUT retaining answers, retry success, delayed save making controls inert, persisted year separation and reload.
+Workspace conflicts | PASS locally | Actual local D1/API two-tab409 retains unsaved answers; conflict survives section changes; reload cancel/failure retains work and retry loads latest. Existing real-SQL tests reject an obsolete ID after delete/recreate.
+Saved review/exports | PASS locally | Supported and blocked records, both-year actual text/JSON/print, saved-vs-unsaved export controls, print-fetch failure closing its popup, and all-year account export independent of current unsaved edits.
+Account deletion | PASS locally after F2 | Exact phrase, Escape/Cancel/X, focus,503 preservation/retry, all-year deletion and empty account/load/export. Reviewer separately retested cancellation/failure behavior; no genuine hosted account deletion claimed.
+Owner/API guards | PASS in actual local route/repository tests | Owner/year/revision predicates, missing identity401, wrong origin/content type403, strict malformed/forged payload400, body limit413, conflicts409 and private/no-store behavior. Local injected owners are not real hosted visitor identities.
+Hosted anonymous calculator runtime | PASS for v4 baseline | Existing actual hosted example/mode checks and this reviewer's fresh hosted calculator/sample/BFCache reproduction used platform service access only. They supply no visitor identity.
+Hosted login/sign-out and durable owner operations | NOT VERIFIABLE here | Genuine visitor identity/session is unavailable in this review environment. Platform service access cannot establish this row.
+Two genuine hosted owners | NOT VERIFIABLE here | No second real authorized visitor was available. Sharing was not widened to fabricate a test; local owner-isolation evidence remains separately labeled.
+Responsive/keyboard/print | PASS for inspected flows | Fresh desktop/390px/320px surfaces, keyboard skip, calculator result/error/comparison focus, deletion focus and readable print samples. This is not an all-browser or formal assistive-technology conformance certification.
+Build, tests and type checking | PASS, coordinator evidence | Final 185 tests, exact Sites build and TypeScript passed after the three fixes. Reviewer's fresh regression browser runs reported zero page errors.
+Lint | NOT CLEAN | Four pre-existing targeted diagnostics remain: workspace synchronous loading state in an effect, two intentional hard-navigation anchors used with unsaved-work protection, and favorite hydration state in an effect. No whole-repository lint-clean claim is made; the new lifecycle effect adds no lint error.
+Public/paid/practitioner readiness | OUTSIDE APPROVAL | Existing professional tax, legal/privacy, operational, staffed-service and payment gates remain. Owner-only private validation is the authorized release scope.
+
+EVIDENCE REGISTER
+
+Continuation-workspace paths below are real evidence artifacts, not claims that the files are embedded in this repository:
+- work/astra-whole-app-evidence/invariant-report.json: six independent reviewer groups, 11,688 evaluations, all passed. The harness explicitly recognizes the documented UIF daily-component exception when history blocks aggregate entitlement; no total entitlement is accepted from it.
+- work/astra-whole-app-evidence/browser/report.json: six reviewer-owned actual Chrome groups, all passed, zero page errors and zero preparation API requests; actual scenario/comparison downloads and screenshots alongside.
+- work/astra-whole-app-evidence/deletion-report.json: four independent focused checks passed after F2, zero page errors.
+- work/astra-whole-app-evidence/lifecycle-report.json: three local lifecycle checks passed after F1, zero page errors. These synthetic event checks do not substitute for genuine hosted BFCache restoration.
+- work/astra-whole-app-evidence/bfcache/v4-before-fix.json: actual hosted F1 failure, pageshow.persisted=true. Fresh-browser service token was not printed, saved or treated as visitor identity.
+- work/full-review/workspace/report.json: fourteen whole-workspace/sample groups; the original observed deletion finding is retained as history. deletion-focus-probe.json records the corrected Escape/Cancel/X, failure and successful-retry checks.
+- work/full-review/public/report.json plus public-guide-followup/report.json: ten unique public-route/widget/navigation groups passed after correcting a calendar-harness assumption. The original failed assertion remains recorded; it was not an application change.
+- work/full-review/narrow-results/report.json: all ten final numeric-layout cases passed.
+
+The reviewer corrected two browser-harness synchronization assumptions (waiting for the destination route and hydrated favorites), used the existing mobile account navigation rather than a hidden desktop selector, and corrected the BFCache navigation wait because a restored document does not repeat DOMContentLoaded. These were harness issues, distinguished from the three demonstrated application defects.
+
+Primary references independently re-opened by this reviewer on 7 October 2026:
+https://www.sars.gov.za/tax-rates/income-tax/rates-of-tax-for-individuals/
+https://www.sars.gov.za/types-of-tax/personal-income-tax/additional-medical-expenses-tax-credit/
+The implemented published bracket/rebate values and tested no-disability AMTC structure agree with those references. This source check does not remove the app's existing 2027 proposal/final-legislation qualifications or specialist practitioner boundaries.
+
+RELEASE CONDITION
+
+Publish only the reviewed runtime source with the current owner-only audience, record its actual source/deployment identity, and re-run the real hosted browser-back probe. Require an actual persisted restoration with empty monetary inputs, no result/example/comparison/local name, and favorite preference retained. Any failure remains open and requires correction. The final user-facing receipt must report that actual result and retain the genuine hosted-identity limitations above.
